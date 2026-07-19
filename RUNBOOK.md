@@ -6,10 +6,10 @@ proxy) and the Phase 1 identity backend. The authoritative design is
 
 ```
 unifiedweb/
-├── frontend/   MooreDnD SPA (Phase 0 homepage + the forked Satchemon pages)
+├── frontend/   MooreDnD SPA (homepage + Satchemon pages under /satchemon/*)
 ├── backend/    portal API (Phase 1 auth rework; fork of newweb/backend)
-├── deploy/     reverse-proxy + systemd (path routing per PLAN §4)
-└── arena/      NOT YET — the dndbattle fork lands in Phase 2
+├── arena/      arena server (fork of dndbattle) — accepts the portal JWT (PLAN §8)
+└── deploy/     reverse-proxy + systemd (path routing per PLAN §4)
 ```
 
 ---
@@ -104,6 +104,31 @@ one. Nothing is hardcoded.
 
 ---
 
+## 3b. Arena server (fork of dndbattle) — portal-JWT bridge
+
+The arena at `unifiedweb/arena/` accepts the portal JWT as
+`Authorization: Bearer` and maps its `twitch_uid` claim onto the game's
+`(platform='twitch', platform_user_id)` user. It verifies with the portal's
+**public** key only — it never holds the private key. Point it at the same
+public PEM the portal signs with:
+
+```
+# in arena/.env
+PORTAL_JWT_PUBLIC_KEY_PATH=/abs/path/to/backend/keys/jwt_public.pem
+```
+
+Unset = portal auth off (the arena's own Twitch-cookie login still works). The
+reverse proxy strips `/api/arena` → the arena's native `/api/*` (see the deploy
+configs), so no arena route changes are needed. Its own stack (Godot client,
+Postgres, Twitch chat) is unchanged; run/test it per `arena/README.md`. The
+portal-bridge tests need only `fastapi httpx pyjwt[crypto] pytest`:
+
+```bash
+cd arena && python -m venv .venv
+.venv/Scripts/python -m pip install fastapi httpx "pyjwt[crypto]" pytest
+.venv/Scripts/python -m pytest -q          # 357 passed
+```
+
 ## 4. What stays manual (yours to do)
 
 1. **OAuth redirect URIs.** In each of the Discord, Google and Twitch OAuth apps,
@@ -122,14 +147,20 @@ one. Nothing is hardcoded.
 
 ---
 
-## 5. Not in this deliverable (later phases, per PLAN §10)
+## 5. Phase 2 status & what remains
 
-- **Arena** (`/api/arena/…`): the proxy route is wired, but the dndbattle fork
-  that accepts the portal JWT is **Phase 2**. No SPA page calls it yet.
-- **Unified SPA**: the Satchemon pages still live at their current paths (only
-  the "all users" list moved to `/satchemon`); full re-pathing under
-  `/satchemon/*` + `/dndbattle/*`, and the account UI for Discord link/unlink,
-  are **Phase 2**.
-- **Bot hardening** (`createUser` upsert), **admin merge tool**, and the **`/link`
-  bot command** are Phases 3–4. At launch, conflicting links are refused with the
-  PLAN §7 guidance message (no merge tool).
+Done: Satchemon pages ported under `/satchemon/*` (DnD Adventure at
+`/satchemon/progress/*`); the portal JWT carries `twitch_uid`; the arena fork
+accepts that JWT for authed actions.
+
+Still open in Phase 2:
+- **dndbattle pages in the SPA** (`/dndbattle/*`): port the arena read pages
+  (live arena, leaderboards, Hall of Fame — public JSON through the proxy) and
+  the authed pages (roster/sheet/shop) using the portal Bearer token. The
+  homepage DnD Battle tile still links out until these land.
+- **Account UI**: extend AccountPage for Discord link/unlink (the backend already
+  supports it) and add a signed-in affordance on the homepage for did-less users.
+
+Later phases (per PLAN §10): **bot hardening** (`createUser` upsert), the
+**admin merge tool**, and the **`/link` bot command** are Phases 3–4. At launch,
+conflicting links are refused with the PLAN §7 guidance message (no merge tool).
