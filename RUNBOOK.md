@@ -6,10 +6,11 @@ proxy) and the Phase 1 identity backend. The authoritative design is
 
 ```
 unifiedweb/
-├── frontend/   MooreDnD SPA (homepage + Satchemon pages under /satchemon/*)
-├── backend/    portal API (Phase 1 auth rework; fork of newweb/backend)
-├── arena/      arena server (fork of dndbattle) — accepts the portal JWT (PLAN §8)
-└── deploy/     reverse-proxy + systemd (path routing per PLAN §4)
+├── frontend/       MooreDnD SPA (homepage + Satchemon /satchemon/* + DnD Battle /dndbattle/*)
+├── backend/        portal API (Phase 1 auth rework; fork of newweb/backend)
+├── arena/          arena server (fork of dndbattle) — accepts the portal JWT (PLAN §8)
+├── satchemon-bot/  Discord bot (fork of bot/mooreDnD-Bot) — createUser hardening (Phase 3)
+└── deploy/         reverse-proxy + systemd (path routing per PLAN §4)
 ```
 
 ---
@@ -147,20 +148,73 @@ cd arena && python -m venv .venv
 
 ---
 
-## 5. Phase 2 status & what remains
+## 5. satchemon-bot fork (Phase 3 — bot hardening)
 
-Done: Satchemon pages ported under `/satchemon/*` (DnD Adventure at
-`/satchemon/progress/*`); the portal JWT carries `twitch_uid`; the arena fork
-accepts that JWT for authed actions.
+`unifiedweb/satchemon-bot/` is a fork of `bot/mooreDnD-Bot` (the git-tracked
+tree only — the real `config.yml`, the local `virt/` venv and the large
+untracked `images/` dir are **not** copied; restore them at deploy). The single
+behavioral change is PLAN §6.1: `createUser` is now an idempotent
+**resolve-or-create**.
 
-Still open in Phase 2:
-- **dndbattle pages in the SPA** (`/dndbattle/*`): port the arena read pages
-  (live arena, leaderboards, Hall of Fame — public JSON through the proxy) and
-  the authed pages (roster/sheet/shop) using the portal Bearer token. The
-  homepage DnD Battle tile still links out until these land.
-- **Account UI**: extend AccountPage for Discord link/unlink (the backend already
-  supports it) and add a signed-in affordance on the homepage for did-less users.
+- `sqlhelper.createUser(name, did)` does `INSERT … ON CONFLICT (did) DO NOTHING`
+  (backed by the `undid` unique constraint) and then re-selects, **returning the
+  rwid** — so a repeat call, or a row the bot didn't know already existed (a
+  web-first account that later linked Discord), is a harmless no-op instead of a
+  unique-constraint crash, and never clobbers that row's data.
+- All four call sites now use that return value; this also fixes two latent
+  crashes in the upstream code (the `/promo` handler referenced an undefined
+  `user`; `giveawayEntries` called `createUser` with the wrong arity).
+- `mydb.py` now connects **lazily** (psycopg2/yaml imported on first DB use, not
+  at import), so the helpers can be unit-tested without a live database.
 
-Later phases (per PLAN §10): **bot hardening** (`createUser` upsert), the
-**admin merge tool**, and the **`/link` bot command** are Phases 3–4. At launch,
-conflicting links are refused with the PLAN §7 guidance message (no merge tool).
+This does **not** fix the two-row case (the bot can't know a web-first row A
+exists when it inserts row B) — that stays a policy matter (PLAN §7): conflicting
+links are refused at launch with the guidance message; the admin merge tool and
+`/link` command are Phase 4.
+
+### Setup / run / test
+
+```bash
+cd satchemon-bot
+cp config.yml.samle config.yml     # then fill in bot token + Postgres creds
+python -m venv virt
+virt/Scripts/python -m pip install -r requirements.txt   # POSIX: virt/bin
+virt/Scripts/python bot.py
+
+# Tests — need only pytest (SQLite in-memory; no DB, no config.yml):
+python -m pip install pytest
+python -m pytest -q                # 4 passing (tests/test_createuser.py)
+```
+
+The tests exercise the real `createUser` against in-memory SQLite by
+monkeypatching `mydb.db_cursor`; a thin cursor wrapper translates psycopg2's
+`%s` placeholders to SQLite's `?` so the helper SQL runs unmodified.
+
+### Deploy note
+
+The prod bot depends on things outside the tracked tree: a filled `config.yml`,
+the card-image assets (`Images` path in `bot.py`), and the CSV export dir
+(`Collections`). These are host paths, unchanged from the original deployment —
+point the fork at the same locations. The bot always has a Discord id in hand,
+so did-less web rows never reach it (NULL-did rows also drop out of the
+`did`-keyed leaderboard scans — PLAN §2.6).
+
+---
+
+## 6. Phases done / what remains
+
+Done: **Phase 0** (shell), **Phase 1** (identity: rwid subject, resolve-or-create
+login, RS256, v1-token grace), **Phase 2** (unified SPA — Satchemon `/satchemon/*`
++ DnD Battle `/dndbattle/*` read + authed pages; arena accepts the portal JWT;
+Account link/unlink for all three providers), **Phase 3** (satchemon-bot
+`createUser` hardening, above).
+
+Remaining (per PLAN §10):
+- **Phase 4 — polish:** the `/link` bot command (one-time code to link Discord
+  without OAuth), the **admin merge tool** (build only if the 409 conflict logs
+  justify it), and re-keying leaderboards on `rwid`.
+- **Phase 5 — decommission:** redirects from the old URLs; retire the standalone
+  newweb frontend + dndbattle web; archive the old folders.
+
+At launch, conflicting provider links are refused with the PLAN §7 guidance
+message (no merge yet).

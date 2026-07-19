@@ -1,0 +1,11 @@
+# Runtime dependencies for the satchemon Discord bot (fork of bot/mooreDnD-Bot).
+# The upstream project shipped no requirements file; this documents the imports.
+py-cord            # discord (slash commands, UI) — the "discord" package
+psycopg2-binary    # Postgres driver (mydb.py connection pool)
+PyYAML             # config.yml parsing
+table2ascii        # chat leaderboard/collection tables
+Pillow             # card image rendering (imgStuff.py / pullhelper.py)
+
+# Dev / test only:
+#   pytest         # unit tests (tests/) — needs nothing else; mydb defers the
+#                  # psycopg2/yaml imports and the DB helpers run on SQLite.

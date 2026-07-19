@@ -1,0 +1,100 @@
+LOW: &LOW
+    - 'This burden is beyond your strength to bear.'
+    - 'The path you wish to tread is for the worthy, among which you are not.'
+    - 'Your resolve falters, and in that weakness, you will fail.'
+    - 'The fires of this trial would consume you whole.'
+    - 'You are untempered steel, too brittle for such a forge.'
+    - 'Your heart is willing, but your spirit remains weak.'
+    - 'You reach for heights that your wings cannot carry you to.'
+    - 'In your current state, this trial would only lead you to ruin.'
+    - 'Your heart wavers, and this path demands unwavering resolve.'
+    - 'You seek to climb a mountain without knowing the way.'
+    - 'Your spirit falters where only the strongest may tread.'
+    - 'You have the desire without the discipline.'
+MID: &MID
+    - 'The path is narrow, and the odds against you, but a faint hope remains.'
+    - 'Success is not beyond reach, but it lies on the edge of what is possible for you.'
+    - 'The flame of sucess flickers faintly; it is yours only if you can keep it alive.'
+    - 'You are not without hope, but hope is fragile, and success rests on a knife’s edge.'
+    - 'Though unlikely, there is a chance — a small, fleeting chance — that you could prevail.'
+    - 'Many will fall where you now stand, but the few that will prevail are no different from you.'
+    - 'You face a steep climb, and the summit is obscured by clouds, but there is a trail—if you can find it.'
+    - 'The task is nearly insurmountable, yet fortune sometimes favors the bold who dare the impossible.'
+    - 'The door to success is nearly shut, but if you are swift and clever, you might slip through.'
+    - 'Though the shadows loom large, there is a glimmer — faint and distant — of a chance within them.'
+HIGH: &HIGH
+    - 'Against all expectation, a spark within you may yet ignite the flame of success.'
+    - 'Fate twists in strange ways; where others see failure, there is a chance you might succeed.'
+    - 'In you, I see an unexpected resilience that may carry you further than even you believe.'
+    - 'The odds seem set, yet something within you stirs—a force that could tip the balance.'
+    - 'What was deemed impossible may not be so for one like you; there is more within you than meets the eye.'
+    - 'It seems improbable, yet there is something about you that defies expectations—perhaps even mine.'
+    - 'Despite the shadows that cloud this path, a light within you could guide the way.'
+    - 'The challenge is immense, but there is an unexpected strength in your spirit that could turn the tide.'
+    - 'Where others would falter, you have a rare quality that might just see you through.'
+1: *LOW
+2: *LOW
+3: *LOW
+4: *LOW
+5: *LOW
+6: *LOW
+7: *LOW
+8: *LOW
+9: *LOW
+10: *LOW
+11: *LOW
+12: *LOW
+13: *LOW
+14: *LOW
+15: *LOW
+16: *LOW
+17: *LOW
+18: *MID
+19: *MID
+20: *MID
+21: *MID
+22: *MID
+23: *MID
+24: *MID
+25: *MID
+26: *MID
+27: *MID
+28: *HIGH
+29: *HIGH
+30: *HIGH
+31: *HIGH
+32:
+    - 'Your strength and resolve have shifted what was once a hopeless endeavor into something within reach.'
+    - 'Your accomplishments defy reason, and now I see that even the impossible may be within your grasp.'
+    - 'You have surpassed limits that none before could breach — perhaps this task is not beyond you after all.'
+    - 'Through sheer will and skill, you have done what none expected — perhaps even this impossible task is within reach.'
+    - 'Your unexpected victory has revealed a path believed non-existent before — perhaps you can find the way forward.'
+voices:
+    - 'A whisper carried on the wind, barely discernible yet profound:'
+    - 'A thunderous roar that echoes through the heavens:'
+    - 'A clear, commanding tone that leaves no room for doubt:'
+    - 'A serene voice, calm and flowing like a gentle stream:'
+    - 'A chorus of overlapping voices, speaking in perfect unison:'
+    - 'A low, growling murmur, ancient and primal:'
+    - 'A soft, soothing whisper in the back of the mind:'
+    - 'A voice like a crackling fire, warm but intense:'
+    - 'A cold, detached tone, devoid of emotion yet full of authority:'
+    - 'A sharp, cutting voice that pierces through all distractions:'
+    - 'A resonant baritone that reverberates like a cathedral bell:'
+    - 'A voice woven with both sorrow and infinite patience:'
+    - 'A voice like rolling waves, rhythmic and ceaseless:'
+    - 'A distant echo, as if spoken from another realm:'
+    - 'A voice like grinding stone, ancient and unyielding:'
+    - 'A brisk, cold wind that speaks with crisp clarity:'
+    - 'A gentle rustle, as though the leaves themselves are speaking:'
+    - 'A stern, unwavering tone, filled with righteous authority:'
+    - 'A voice like the distant roar of an ocean tide:'
+    - 'A low, rumbling growl, echoing with restrained power:'
+    - 'A voice like the rustling of pages in an ancient book:'
+    - 'A voice like the crack of lightning, sharp and electric:'
+    - 'A rumbling growl, filled with quiet menace:'
+    - 'A quiet whisper that somehow fills the entire space:'
+    - 'A voice like rushing wind, wild and untamed:'
+    - 'A voice like gravel, rough and weathered by time:'
+    - 'A booming proclamation that demands attention:'
+    - 'A sudden, sharp voice that cuts through silence like a blade:'

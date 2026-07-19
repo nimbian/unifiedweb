@@ -1,0 +1,11 @@
+# Secrets — real bot token + Postgres creds live here.
+# Copy config.yml.samle -> config.yml and fill it in (never commit the result).
+config.yml
+
+# Local virtualenv / scratch. Repo-wide Python ignores (__pycache__, .venv,
+# .pytest_cache, *.pyc) live in ../.gitignore.
+virt/
+*.swp
+*.sql
+*.sh
+shop.py
