@@ -1,8 +1,12 @@
 import { Route, Routes } from 'react-router-dom';
 import { MainLayout } from '@/layouts/MainLayout';
+import { DndBattleLayout } from '@/layouts/DndBattleLayout';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { HomePage } from '@/pages/HomePage';
 import { UsersPage } from '@/pages/UsersPage';
+import { ArenaPage } from '@/pages/dndbattle/ArenaPage';
+import { DndBattleLeaderboardPage } from '@/pages/dndbattle/DndBattleLeaderboardPage';
+import { HallOfFamePage } from '@/pages/dndbattle/HallOfFamePage';
 import { UserCardsPage } from '@/pages/UserCardsPage';
 import { ProgressPage } from '@/pages/ProgressPage';
 import { SearchPage } from '@/pages/SearchPage';
@@ -86,6 +90,13 @@ export function AppRoutes() {
         <Route path="/satchemon/progress/achievements" element={<DndAchievementsPage />} />
 
         <Route path="*" element={<NotFoundPage />} />
+      </Route>
+
+      {/* DnD Battle (arena) — read pages are public; authed pages come later */}
+      <Route element={<DndBattleLayout />}>
+        <Route path="/dndbattle" element={<ArenaPage />} />
+        <Route path="/dndbattle/leaderboard" element={<DndBattleLeaderboardPage />} />
+        <Route path="/dndbattle/hof" element={<HallOfFamePage />} />
       </Route>
     </Routes>
   );

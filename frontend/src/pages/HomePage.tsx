@@ -4,9 +4,9 @@
 // games — Satchemon (the TCG) and DnD Battle (the Twitch arena). DnD Adventure
 // lives *under* Satchemon (its progress pages), so it is not a separate tile.
 //
-// The Satchemon pages are now ported in-app (Phase 2), so its tile navigates
-// internally to /satchemon. DnD Battle still links OUT to the existing site
-// (VITE_DNDBATTLE_URL — never hardcoded) until those pages are ported too.
+// Both games are now ported in-app (Phase 2), so both tiles navigate internally.
+// (The external-link glyph + VITE_*_URL fallback remain in case a tile is pointed
+// back out at a standalone site during a transition.)
 
 import { Anchor, Box, Card, Center, Group, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core';
 import { IconCards, IconExternalLink, IconSwords } from '@tabler/icons-react';
@@ -22,8 +22,6 @@ interface Tile {
   icon: typeof IconCards;
 }
 
-const DNDBATTLE_URL = import.meta.env.VITE_DNDBATTLE_URL || '#';
-
 const TILES: Tile[] = [
   {
     title: 'Satchemon',
@@ -38,8 +36,8 @@ const TILES: Tile[] = [
     title: 'DnD Battle',
     tagline: 'The Twitch arena',
     description:
-      'Build a roster, fight in the live arena, climb the leaderboards and visit the Hall of Fame.',
-    href: DNDBATTLE_URL,
+      'Watch the live arena, climb the leaderboards, and visit the Hall of Fame.',
+    to: '/dndbattle',
     color: 'grape',
     icon: IconSwords,
   },
