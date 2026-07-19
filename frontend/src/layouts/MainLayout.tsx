@@ -25,7 +25,7 @@ import { useUserProfile } from '@/hooks/useUsers';
 import { formatValue } from '@/utils/format';
 
 const NAV = [
-  { to: '/', label: 'All Users', icon: IconUsers, end: true },
+  { to: '/satchemon', label: 'All Users', icon: IconUsers, end: true },
   { to: '/search', label: 'Search', icon: IconSearch, end: false },
   { to: '/leaderboard', label: 'Leaderboard', icon: IconTrophy, end: false },
   // The "shop" is the system user's collection (uid 0) — cards sold back to it.
@@ -50,9 +50,17 @@ export function MainLayout() {
         <Group h="100%" px="md" justify="space-between" wrap="nowrap">
           <Group wrap="nowrap" gap="xs">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-            <Text fw={800} c="red.5" size="lg" style={{ letterSpacing: '0.05em' }}>
-              SATCHEMON
-            </Text>
+            <Tooltip label="Back to MooreDnD home">
+              <Text
+                fw={800}
+                c="red.5"
+                size="lg"
+                style={{ letterSpacing: '0.05em', cursor: 'pointer' }}
+                onClick={() => navigate('/')}
+              >
+                SATCHEMON
+              </Text>
+            </Tooltip>
           </Group>
           <Group wrap="nowrap" gap="xs">
             {isAuthenticated ? (

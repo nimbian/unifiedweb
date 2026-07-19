@@ -1,0 +1,32 @@
+# systemd unit for the MooreDnD portal backend (fork of newweb/backend).
+# Install to /etc/systemd/system/moorednd-api.service
+#
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now moorednd-api
+#   sudo systemctl status moorednd-api
+
+[Unit]
+Description=MooreDnD portal backend (Gunicorn + Uvicorn workers)
+After=network.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=moorednd
+Group=moorednd
+WorkingDirectory=/opt/moorednd/backend
+# EnvironmentFile holds the real secrets (mode 0600, owned by moorednd). It also
+# points JWT_PRIVATE_KEY_PATH / JWT_PUBLIC_KEY_PATH at the RS256 PEM files.
+EnvironmentFile=/opt/moorednd/backend/.env
+ExecStart=/opt/moorednd/backend/.venv/bin/gunicorn app.main:app -c /opt/moorednd/backend/deploy/gunicorn.conf.py
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

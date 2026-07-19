@@ -1,0 +1,54 @@
+# systemd unit for the MooreDnD frontend (Vite dev server behind Apache/nginx).
+# Install to /etc/systemd/system/moorednd-frontend.service
+#
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now moorednd-frontend
+#   sudo systemctl status moorednd-frontend
+#
+# This runs Vite's *dev* server on 127.0.0.1:5173, matching the setup where the
+# reverse proxy fronts the public hostname (see vite.config.ts `allowedHosts`).
+# The proxy forwards / to 127.0.0.1:5173 and /api (+ /api/arena) to the backends:
+#
+#     ProxyPreserveHost On
+#     ProxyPass        /api/arena/ http://127.0.0.1:8090/api/arena/   # arena wins first
+#     ProxyPassReverse /api/arena/ http://127.0.0.1:8090/api/arena/
+#     ProxyPass        /api/ http://127.0.0.1:8080/api/               # portal backend
+#     ProxyPassReverse /api/ http://127.0.0.1:8080/api/
+#     ProxyPass        /     http://127.0.0.1:5173/                   # everything else -> Vite
+#     ProxyPassReverse /     http://127.0.0.1:5173/
+#     # Vite HMR websocket (only needed for live reload through the proxy):
+#     RewriteEngine On
+#     RewriteCond %{HTTP:Upgrade} websocket [NC]
+#     RewriteRule /(.*) ws://127.0.0.1:5173/$1 [P,L]
+#
+# NOTE: the Vite dev server is not meant for production. The hardened path is
+# `npm run build` + the proxy serving frontend/dist statically (httpd-moorednd.conf
+# / nginx.conf). In that mode there is no frontend daemon — disable this unit and
+# only moorednd-api runs.
+
+[Unit]
+Description=MooreDnD frontend (Vite dev server)
+After=network.target moorednd-api.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=moorednd
+Group=moorednd
+WorkingDirectory=/opt/moorednd/frontend
+Environment=NODE_ENV=development
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+# Run the vite binary directly (not `npm run dev`) so systemd supervises the real
+# process. --host 127.0.0.1 keeps it private (the proxy fronts it); --strictPort
+# fails loudly instead of silently hopping off 5173.
+ExecStart=/opt/moorednd/frontend/node_modules/.bin/vite --host 127.0.0.1 --port 5173 --strictPort
+Restart=on-failure
+RestartSec=5
+# Hardening (matches moorednd-api.service).
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

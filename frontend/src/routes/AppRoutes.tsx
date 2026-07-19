@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { MainLayout } from '@/layouts/MainLayout';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { HomePage } from '@/pages/HomePage';
 import { UsersPage } from '@/pages/UsersPage';
 import { UserCardsPage } from '@/pages/UserCardsPage';
 import { ProgressPage } from '@/pages/ProgressPage';
@@ -17,8 +18,9 @@ import { AuthCallbackPage } from '@/pages/AuthCallbackPage';
 import { AccountPage } from '@/pages/AccountPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
-// Route map (was Flask's @app.route decorators):
-//   /                -> UsersPage        (/satchemon/)
+// Route map (Phase 0 — MooreDnD shell):
+//   /                -> HomePage         (portal landing: Satchemon + DnD Battle tiles)
+//   /satchemon       -> UsersPage        (the Satchemon "all users" list; was "/")
 //   /user/:did       -> UserCardsPage    (/satchemon/user/<did>)
 //   /me              -> UserCardsPage    (/satchemon/mycards, protected)
 //   /search          -> SearchPage       (/satchemon/search)
@@ -26,15 +28,20 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 //   /shop            -> UserCardsPage    (system user uid 0 — sold-back cards)
 //   /slideshow       -> SlideshowPage    (/CS)
 //   /login           -> LoginPage
-//   /auth/callback   -> AuthCallbackPage  (Discord redirect target)
+//   /auth/callback   -> AuthCallbackPage  (OAuth redirect target)
+//
+// The Satchemon pages keep their existing top-level paths for now; only the
+// landing list moved to /satchemon so "/" can host the portal homepage. Full
+// re-pathing under /satchemon/* and /dndbattle/* is Phase 2.
 export function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
       <Route element={<MainLayout />}>
-        <Route path="/" element={<UsersPage />} />
+        <Route path="/satchemon" element={<UsersPage />} />
         <Route path="/user/:did" element={<UserCardsPage />} />
         <Route path="/user/:did/progress" element={<ProgressPage />} />
         <Route

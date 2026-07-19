@@ -1,7 +1,8 @@
-"""Gunicorn config for the Satchemon API on CentOS.
+"""Gunicorn config for the MooreDnD portal backend on CentOS.
 
 Runs Uvicorn workers (ASGI) behind Gunicorn's process manager. Bound to
-localhost only — nginx terminates the public connection and reverse-proxies.
+localhost only — the reverse proxy (Apache/nginx) terminates the public
+connection and path-routes /api to this process (PLAN §4).
 """
 
 import multiprocessing
