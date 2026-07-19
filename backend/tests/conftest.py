@@ -13,11 +13,35 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-os.environ.setdefault("JWT_SECRET", "test-secret-key-for-pytest-only-0123456789")
 os.environ.setdefault("ROLECALL_API_KEY", "test-rolecall-key")
 # Point the app engine at SQLite so importing it does not require the Postgres
 # driver; every request is routed to the in-memory test session via override.
 os.environ.setdefault("DATABASE_URL", "sqlite://")
+
+# JWT: exercise the real RS256 path with an ephemeral key pair (no PEM files on
+# disk — the inline JWT_PRIVATE_KEY/JWT_PUBLIC_KEY env vars feed config directly).
+os.environ.setdefault("JWT_ALGORITHM", "RS256")
+# The v1-grace legacy HS256 secret (PLAN §5). test_auth mints a v1-shape token
+# signed with this to prove old sessions still verify.
+os.environ.setdefault("JWT_LEGACY_SECRET", "legacy-newweb-hs256-secret-for-tests")
+if "JWT_PRIVATE_KEY" not in os.environ:
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
+
+    _rsa_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    os.environ["JWT_PRIVATE_KEY"] = _rsa_key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption(),
+    ).decode()
+    os.environ["JWT_PUBLIC_KEY"] = (
+        _rsa_key.public_key()
+        .public_bytes(
+            serialization.Encoding.PEM,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        .decode()
+    )
 
 from app.core.database import get_db  # noqa: E402
 from app.dnd.database import DndBase, get_dnd_db  # noqa: E402

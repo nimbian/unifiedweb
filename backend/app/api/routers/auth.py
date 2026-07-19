@@ -13,7 +13,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Cookie, HTTPException, Path, Response, status
 
-from app.api.dependencies.auth import CurrentUser
+from app.api.dependencies.auth import CurrentRwid, CurrentUser
 from app.api.dependencies.services import AuthServiceDep
 from app.core.config import settings
 from app.core.security import TokenError
@@ -64,6 +64,8 @@ def refresh(
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED, detail=f"Invalid refresh token: {exc}"
         ) from exc
+    except AuthError as exc:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
 
 
 @router.post("/logout", summary="Clear the refresh cookie")
@@ -78,8 +80,8 @@ def me(user: CurrentUser) -> AuthenticatedUser:
 
 
 @router.get("/links", response_model=LinkedAccounts, summary="Current user's linked providers")
-def links(service: AuthServiceDep, user: CurrentUser) -> LinkedAccounts:
-    return service.linked_accounts(user.did)
+def links(service: AuthServiceDep, rwid: CurrentRwid) -> LinkedAccounts:
+    return service.linked_accounts(rwid)
 
 
 # ── Provider routes ──────────────────────────────────────────────────────────
@@ -112,11 +114,11 @@ async def provider_link(
     provider: ProviderPath,
     payload: OAuthCallbackRequest,
     service: AuthServiceDep,
-    user: CurrentUser,
+    rwid: CurrentRwid,
 ) -> LinkedAccounts:
     prov = _provider(provider)
     try:
-        return await service.link_provider(prov, payload.code, user.did)
+        return await service.link_provider(prov, payload.code, rwid)
     except AuthConflict as exc:
         raise HTTPException(status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except AuthError as exc:
@@ -127,10 +129,10 @@ async def provider_link(
 def provider_unlink(
     provider: ProviderPath,
     service: AuthServiceDep,
-    user: CurrentUser,
+    rwid: CurrentRwid,
 ) -> LinkedAccounts:
     prov = _provider(provider)
     try:
-        return service.unlink_provider(prov, user.did)
+        return service.unlink_provider(prov, rwid)
     except AuthError as exc:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc

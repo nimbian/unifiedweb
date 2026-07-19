@@ -24,11 +24,15 @@ class TokenResponse(BaseModel):
 
 
 class AuthenticatedUser(BaseModel):
-    """The identity resolved from a valid access token (the request principal)."""
+    """The identity resolved from a valid access token (the request principal).
 
-    did: str = Field(..., description="Discord user id (token subject).")
+    ``rwid`` is the canonical account id (the v2 token subject). ``did`` is now
+    optional — a Twitch/Google-first user who has not linked Discord has no did.
+    """
+
+    rwid: int | None = Field(default=None, description="Canonical users.rwid (v2 token subject).")
+    did: str | None = Field(default=None, description="Discord user id, if the account has one.")
     name: str | None = None
-    rwid: int | None = Field(default=None, description="Internal users.rwid, if registered.")
 
 
 class ProviderLink(BaseModel):

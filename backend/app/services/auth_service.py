@@ -1,21 +1,27 @@
 """Authentication business logic — multi-provider OAuth -> JWT.
 
-Every account is anchored on **Discord**: the JWT subject is always the Discord
-id (``did``), and all authorization (ownership checks, ``rwid`` resolution, FKs)
-keys off it. Because everyone already has a Discord account, signing in with
-Google (the "YouTube" login) or Twitch does not need a new identity model — it
-just resolves the linked provider id back to the owning user's ``did``.
+The canonical account id is **``users.rwid``** (PLAN §3). Signing in with any of
+Discord, Google (the "YouTube" login) or Twitch resolves the provider id to a
+``users`` row — or **creates one** if none exists yet — and mints tokens whose
+subject is that row's ``rwid``. A row can carry any subset of the three
+providers; a Twitch/Google-first account simply has ``did = NULL`` until the user
+links Discord.
 
 Flows:
   * **Login**  — exchange the provider ``code`` for a stable account id, resolve
-    the owning user, and mint tokens on their ``did``. Discord always works;
-    Google/Twitch only after the account has been linked.
+    the owning user or INSERT a new one, and issue tokens on their ``rwid``.
   * **Link**   — while signed in, attach a provider's account id to the current
-    user's row (rejected if that provider account already belongs to someone else).
-  * **Unlink** — clear a linked provider from the current user.
+    user's row (rejected with 409 if that provider account belongs to someone
+    else). Discord is now linkable like the others.
+  * **Unlink** — clear a linked provider from the current user; refused if it is
+    the last connected provider (a row must keep at least one sign-in method).
 
-The refresh token is set as an httpOnly cookie by the router. The legacy
-``sessions`` table is intentionally not used; JWTs are self-contained.
+Tokens: v2 tokens carry ``sub = rwid`` and ``ver = 2`` with ``did`` as an
+optional claim. Older **v1** tokens (``sub = did``) are still accepted during the
+grace window and resolved to their ``rwid`` on the fly (PLAN §5).
+
+The refresh token is set as an httpOnly cookie by the router; JWTs are
+self-contained (no ``sessions`` table).
 """
 
 from dataclasses import dataclass
@@ -26,6 +32,7 @@ import httpx
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.core.security import create_access_token, create_refresh_token, decode_token
+from app.models import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import (
     AuthenticatedUser,
@@ -36,6 +43,10 @@ from app.schemas.auth import (
 )
 
 logger = get_logger(__name__)
+
+# Current access/refresh token shape. v1 tokens (no ``ver``, ``sub = did``) issued
+# by the previous backend are still accepted during the grace window.
+TOKEN_VERSION = 2
 
 
 class AuthError(Exception):
@@ -167,91 +178,129 @@ class AuthService:
                 raise AuthError(f"Failed to fetch {provider.title()} profile")
             return _parse_identity(provider, me_resp.json())
 
-    def _resolve_user(self, identity: ProviderIdentity):  # noqa: ANN201 (User | None)
+    def _resolve_user(self, identity: ProviderIdentity) -> User | None:
         if identity.provider == "discord":
             return self.users.get_by_did(int(identity.account_id))
         if identity.provider == "google":
             return self.users.get_by_google_sub(identity.account_id)
         return self.users.get_by_twitch_uid(identity.account_id)
 
-    # ── Login ────────────────────────────────────────────────────────────────
-    async def login_with_provider(self, provider: Provider, code: str) -> tuple[TokenResponse, str]:
-        """Exchange the code and return (access token response, refresh token)."""
+    # ── Login (resolve-or-create) ────────────────────────────────────────────
+    async def login_with_provider(
+        self, provider: Provider, code: str
+    ) -> tuple[TokenResponse, str]:
+        """Exchange the code and return (access token response, refresh token).
+
+        All three providers get the same treatment: resolve the owning row, or
+        create one on first sign-in (INSERT only — never rewrites an existing row).
+        """
         identity = await self._fetch_identity(provider, code)
         user = self._resolve_user(identity)
-
-        if provider == "discord":
-            # Discord is the anchor: the token subject is the Discord id itself,
-            # whether or not the user is registered in ``users`` (matches legacy).
-            name = user.name if user is not None else identity.display
-            rwid = user.rwid if user is not None else None
-            return self._issue_tokens(identity.account_id, name=name, rwid=rwid)
-
         if user is None:
-            raise AuthError(
-                f"No account is linked to that {provider.title()}. "
-                "Sign in with Discord and link it under Account first."
+            user = self.users.create_from_identity(
+                identity.provider, identity.account_id, identity.display
             )
-        if user.did is None:
-            raise AuthError("The linked account has no Discord id to sign in as.")
-        return self._issue_tokens(str(user.did), name=user.name, rwid=user.rwid)
+            logger.info("created users row rwid=%s via %s", user.rwid, provider)
+        return self._issue_tokens_for(user)
 
-    def _issue_tokens(
-        self, did: str, name: str | None, rwid: int | None
-    ) -> tuple[TokenResponse, str]:
-        extra: dict[str, object] = {}
-        if name is not None:
-            extra["name"] = name
-        if rwid is not None:
-            extra["rwid"] = rwid
-        access = create_access_token(subject=did, extra_claims=extra)
-        refresh = create_refresh_token(subject=did)
+    # ── Token minting ────────────────────────────────────────────────────────
+    @staticmethod
+    def _provider_list(user: User) -> list[str]:
+        """The providers currently connected to a row (order: discord, google, twitch)."""
+        providers: list[str] = []
+        if user.did is not None:
+            providers.append("discord")
+        if user.google_sub:
+            providers.append("google")
+        if user.twitch_uid:
+            providers.append("twitch")
+        return providers
+
+    def _access_claims(self, user: User) -> dict[str, object]:
+        claims: dict[str, object] = {"ver": TOKEN_VERSION}
+        if user.name is not None:
+            claims["name"] = user.name
+        if user.did is not None:
+            claims["did"] = str(user.did)
+        providers = self._provider_list(user)
+        if providers:
+            claims["providers"] = providers
+        return claims
+
+    def _issue_tokens_for(self, user: User) -> tuple[TokenResponse, str]:
+        sub = str(user.rwid)
+        access = create_access_token(subject=sub, extra_claims=self._access_claims(user))
+        refresh = create_refresh_token(subject=sub, extra_claims={"ver": TOKEN_VERSION})
         response = TokenResponse(
             access_token=access,
             expires_in=settings.access_token_expire_minutes * 60,
         )
         return response, refresh
 
-    # ── Link / unlink ────────────────────────────────────────────────────────
-    async def link_provider(self, provider: Provider, code: str, current_did: str) -> LinkedAccounts:
+    # ── Link / unlink (keyed on rwid) ────────────────────────────────────────
+    def _conflict_message(self, provider: Provider) -> str:
         if provider == "discord":
-            raise AuthError("Discord is your primary account and is always connected.")
+            return (
+                "That Discord account already has a Satchemon profile. Sign in with "
+                "Discord instead, then link Twitch/Google from there — or contact an "
+                "admin to merge the accounts."
+            )
+        return (
+            f"That {provider.title()} account is already linked to another MooreDnD "
+            "profile. Sign in with it directly, or contact an admin to merge the accounts."
+        )
 
-        me = self.users.get_by_did(int(current_did))
+    async def link_provider(
+        self, provider: Provider, code: str, current_rwid: int
+    ) -> LinkedAccounts:
+        me = self.users.get_by_rwid(current_rwid)
         if me is None:
             raise AuthError("Your account is not registered.")
 
         identity = await self._fetch_identity(provider, code)
         existing = self._resolve_user(identity)
         if existing is not None and existing.rwid != me.rwid:
-            raise AuthConflict(
-                f"That {provider.title()} account is already linked to another user."
-            )
+            raise AuthConflict(self._conflict_message(provider))
 
-        if provider == "google":
+        if provider == "discord":
+            self.users.set_discord_link(me.rwid, int(identity.account_id))
+            # Give a name-less (web-first) row a display name from Discord.
+            if me.name is None and identity.display:
+                self.users.set_name(me.rwid, identity.display)
+        elif provider == "google":
             self.users.set_google_link(me.rwid, identity.account_id, identity.display)
         else:
             self.users.set_twitch_link(me.rwid, identity.account_id, identity.display)
-        return self.linked_accounts(current_did)
+        return self.linked_accounts(current_rwid)
 
-    def unlink_provider(self, provider: Provider, current_did: str) -> LinkedAccounts:
-        if provider == "discord":
-            raise AuthError("You cannot disconnect your primary Discord account.")
-
-        me = self.users.get_by_did(int(current_did))
+    def unlink_provider(self, provider: Provider, current_rwid: int) -> LinkedAccounts:
+        me = self.users.get_by_rwid(current_rwid)
         if me is None:
             raise AuthError("Your account is not registered.")
 
-        if provider == "google":
+        connected = set(self._provider_list(me))
+        if provider in connected and len(connected) == 1:
+            raise AuthError(
+                "You must keep at least one sign-in method connected. Link another "
+                "provider before removing this one."
+            )
+
+        if provider == "discord":
+            self.users.set_discord_link(me.rwid, None)
+        elif provider == "google":
             self.users.set_google_link(me.rwid, None, None)
         else:
             self.users.set_twitch_link(me.rwid, None, None)
-        return self.linked_accounts(current_did)
+        return self.linked_accounts(current_rwid)
 
-    def linked_accounts(self, current_did: str) -> LinkedAccounts:
-        me = self.users.get_by_did(int(current_did))
+    def linked_accounts(self, current_rwid: int) -> LinkedAccounts:
+        me = self.users.get_by_rwid(current_rwid)
+        discord_linked = bool(me and me.did is not None)
         return LinkedAccounts(
-            discord=ProviderLink(linked=True, handle=me.name if me else None),
+            discord=ProviderLink(
+                linked=discord_linked,
+                handle=me.name if (me and discord_linked) else None,
+            ),
             google=ProviderLink(
                 linked=bool(me and me.google_sub),
                 handle=me.google_name if me else None,
@@ -263,14 +312,24 @@ class AuthService:
         )
 
     # ── Token refresh ────────────────────────────────────────────────────────
+    def _user_from_refresh(self, payload: dict) -> User | None:
+        if payload.get("ver") == TOKEN_VERSION:
+            return self.users.get_by_rwid(int(payload["sub"]))
+        # v1 refresh cookie: sub is the Discord id — resolve its rwid on the fly.
+        try:
+            did = int(payload["sub"])
+        except (TypeError, ValueError):
+            return None
+        return self.users.get_by_did(did)
+
     def refresh(self, refresh_token: str) -> TokenResponse:
         payload = decode_token(refresh_token, expected_type="refresh")
-        did = payload["sub"]
-        user = self.users.get_by_did(int(did))
-        extra: dict[str, object] = {}
-        if user is not None:
-            extra = {"name": user.name, "rwid": user.rwid}
-        access = create_access_token(subject=did, extra_claims=extra)
+        user = self._user_from_refresh(payload)
+        if user is None:
+            raise AuthError("Your session could not be refreshed; please sign in again.")
+        access = create_access_token(
+            subject=str(user.rwid), extra_claims=self._access_claims(user)
+        )
         return TokenResponse(
             access_token=access,
             expires_in=settings.access_token_expire_minutes * 60,
@@ -280,8 +339,16 @@ class AuthService:
     @staticmethod
     def principal_from_access(token: str) -> AuthenticatedUser:
         payload = decode_token(token, expected_type="access")
+        if payload.get("ver") == TOKEN_VERSION:
+            # v2: subject is the canonical rwid; did rides as an optional claim.
+            return AuthenticatedUser(
+                rwid=int(payload["sub"]),
+                did=payload.get("did"),
+                name=payload.get("name"),
+            )
+        # v1 grace: subject is the Discord id; rwid (if present) rides as a claim.
         return AuthenticatedUser(
-            did=payload["sub"],
-            name=payload.get("name"),
             rwid=payload.get("rwid"),
+            did=str(payload["sub"]),
+            name=payload.get("name"),
         )

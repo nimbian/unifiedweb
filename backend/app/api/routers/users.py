@@ -9,7 +9,7 @@
 
 from fastapi import APIRouter
 
-from app.api.dependencies.auth import CurrentUser
+from app.api.dependencies.auth import CurrentDid
 from app.api.dependencies.services import UserServiceDep
 from app.schemas.user import RoleOption, RoleResult, RoleUpdate, UserProfile, UserSummary
 
@@ -27,15 +27,15 @@ def get_user(did: int, service: UserServiceDep) -> UserProfile:
 
 
 @router.get("/me", response_model=UserProfile, summary="Get the current user's profile")
-def get_me(user: CurrentUser, service: UserServiceDep) -> UserProfile:
-    return service.get_profile(int(user.did))
+def get_me(did: CurrentDid, service: UserServiceDep) -> UserProfile:
+    return service.get_profile(did)
 
 
 @router.get("/me/roles", response_model=list[RoleOption], summary="Roles the caller may select")
-def my_roles(user: CurrentUser, service: UserServiceDep) -> list[RoleOption]:
-    return service.role_options(int(user.did))
+def my_roles(did: CurrentDid, service: UserServiceDep) -> list[RoleOption]:
+    return service.role_options(did)
 
 
 @router.put("/me/role", response_model=RoleResult, summary="Set or clear the caller's role")
-def set_my_role(body: RoleUpdate, user: CurrentUser, service: UserServiceDep) -> RoleResult:
-    return service.set_role(int(user.did), body.roleid)
+def set_my_role(body: RoleUpdate, did: CurrentDid, service: UserServiceDep) -> RoleResult:
+    return service.set_role(did, body.roleid)

@@ -10,7 +10,7 @@ from typing import Literal
 
 from fastapi import APIRouter, Query
 
-from app.api.dependencies.auth import CurrentUser
+from app.api.dependencies.auth import CurrentDid
 from app.api.dependencies.services import CollectionServiceDep
 from app.schemas.buy import BuyRequest, BuyResult
 from app.schemas.card import CardRow, SearchFacets, SearchResults
@@ -79,14 +79,14 @@ def search_facets(service: CollectionServiceDep) -> SearchFacets:
 )
 def sell_cards(
     payload: SellRequest,
-    user: CurrentUser,
+    did: CurrentDid,
     service: CollectionServiceDep,
 ) -> SellResult:
     """Sell cards belonging to the authenticated user. The seller is resolved from
     the access token (never from the request body), so a user can only ever sell
     their own cards.
     """
-    return service.sell(int(user.did), payload)
+    return service.sell(did, payload)
 
 
 @router.post(
@@ -96,11 +96,11 @@ def sell_cards(
 )
 def buy_cards(
     payload: BuyRequest,
-    user: CurrentUser,
+    did: CurrentDid,
     service: CollectionServiceDep,
 ) -> BuyResult:
     """Buy shop cards (the system user's uid-0 collection) for the authenticated
     user. The buyer is resolved from the access token; only cards currently in
     the shop can be bought, and the buyer must have enough GP.
     """
-    return service.buy(int(user.did), payload)
+    return service.buy(did, payload)
