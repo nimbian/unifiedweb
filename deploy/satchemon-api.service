@@ -1,0 +1,31 @@
+# systemd unit for the Satchemon FastAPI backend.
+# Install to /etc/systemd/system/satchemon-api.service
+#
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now satchemon-api
+#   sudo systemctl status satchemon-api
+
+[Unit]
+Description=Satchemon FastAPI backend (Gunicorn + Uvicorn workers)
+After=network.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=satchemon
+Group=satchemon
+WorkingDirectory=/opt/satchemon/backend
+# EnvironmentFile holds the real secrets (mode 0600, owned by satchemon).
+EnvironmentFile=/opt/satchemon/backend/.env
+ExecStart=/opt/satchemon/backend/.venv/bin/gunicorn app.main:app -c /opt/satchemon/backend/deploy/gunicorn.conf.py
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

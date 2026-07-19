@@ -1,0 +1,30 @@
+# ── Secrets (never commit) ───────────────────────────────────────────────────
+.env
+.env.local
+*.local
+gc.json
+# JWT signing material — RS256 PEM keys live on disk, referenced from .env.
+*.pem
+secrets/
+keys/
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+.venv-test/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Node / frontend build output ─────────────────────────────────────────────
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+
+# ── Editor / OS ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

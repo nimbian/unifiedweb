@@ -1,0 +1,58 @@
+{
+  "explore_cooldown_seconds": 90,
+  "recovery_cooldown_seconds": 180,
+  "death_gold_loss_pct": 0.1,
+  "rogue_gold_bonus": 0.1,
+  "wizard_xp_bonus": 0.1,
+  "sell_multiplier": 0.5,
+  "quick_gold_penalty": 0.15,
+  "flee_dc": 12,
+  "bag_upgrade_slots": 10,
+  "bag_upgrade_cost_multiplier": 5,
+  "daily_base_gold": 50,
+  "daily_base_xp": 60,
+  "daily_streak_gold": 15,
+  "daily_streak_xp": 20,
+  "daily_streak_cap": 14,
+  "daily_quest_count": 3,
+  "delve_cooldown_seconds": 300,
+  "delve_lobby_seconds": 60,
+  "boss_attack_cooldown_seconds": 30,
+  "world_boss_hp": 8000,
+  "world_boss_id": "ancient_wyrm",
+  "boss_reward_gold_pool": 6000,
+  "boss_reward_xp": 1500,
+  "boss_top_bonus_gold": 1000,
+  "world_boss_spawn_interval_seconds": 3600,
+  "world_boss_expire_seconds": 86400,
+  "elite": {
+    "base_chance": 0.04,
+    "per_overlevel": 0.03,
+    "max_chance": 0.3,
+    "hp_mult": 1.9,
+    "atk_bonus": 1,
+    "dmg_bonus": 1,
+    "dmg_mult": 1.3,
+    "reward_mult": 2.2,
+    "names": [
+      "Dire",
+      "Ravening",
+      "Ancient",
+      "Cursed",
+      "Bloodmad",
+      "Elder",
+      "Feral",
+      "Vile"
+    ]
+  },
+  "taper": {
+    "free_levels": 2,
+    "per_level": 0.08,
+    "floor": 0.4
+  },
+  "resource": {
+    "base": 4,
+    "per_level": 1,
+    "regen_per_explore": 1
+  }
+}

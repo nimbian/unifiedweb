@@ -1,0 +1,698 @@
+{
+  "rat_tail": {
+    "name": "Rat Tail",
+    "rarity": "common",
+    "value": 2,
+    "type": "loot",
+    "description": "Worth almost nothing. Almost."
+  },
+  "kobold_tooth": {
+    "name": "Kobold Tooth",
+    "rarity": "common",
+    "value": 2,
+    "type": "loot",
+    "description": "A small, sharp trophy."
+  },
+  "rusty_dagger": {
+    "name": "Rusty Dagger",
+    "rarity": "common",
+    "value": 4,
+    "type": "loot",
+    "description": "Dull and pitted, but the metal sells."
+  },
+  "worn_boots": {
+    "name": "Worn Boots",
+    "rarity": "common",
+    "value": 5,
+    "type": "loot",
+    "description": "Someone walked a long way in these."
+  },
+  "goblin_ear": {
+    "name": "Goblin Ear",
+    "rarity": "common",
+    "value": 3,
+    "type": "loot",
+    "description": "Proof of a goblin slain."
+  },
+  "spider_silk": {
+    "name": "Spider Silk",
+    "rarity": "uncommon",
+    "value": 8,
+    "type": "loot",
+    "description": "Strong, fine thread prized by weavers."
+  },
+  "wolf_pelt": {
+    "name": "Wolf Pelt",
+    "rarity": "uncommon",
+    "value": 12,
+    "type": "loot",
+    "description": "A thick, warm hide."
+  },
+  "boar_tusk": {
+    "name": "Boar Tusk",
+    "rarity": "uncommon",
+    "value": 15,
+    "type": "loot",
+    "description": "A wickedly curved tusk."
+  },
+  "shiny_trinket": {
+    "name": "Shiny Trinket",
+    "rarity": "uncommon",
+    "value": 20,
+    "type": "loot",
+    "description": "Bauble of unknown origin."
+  },
+  "goblin_charm_loot": {
+    "name": "Goblin Fetish",
+    "rarity": "rare",
+    "value": 40,
+    "type": "loot",
+    "description": "A crude fetish humming with faint luck."
+  },
+  "gold_ring": {
+    "name": "Gold Ring",
+    "rarity": "rare",
+    "value": 50,
+    "type": "loot",
+    "description": "Solid gold. A genuinely good find."
+  },
+  "bone_dust": {
+    "name": "Bone Dust",
+    "rarity": "common",
+    "value": 6,
+    "type": "loot",
+    "description": "Powdered remains. Alchemists pay."
+  },
+  "rotting_flesh": {
+    "name": "Rotting Flesh",
+    "rarity": "common",
+    "value": 4,
+    "type": "loot",
+    "description": "Foul, but useful in dark recipes."
+  },
+  "ghoul_claw": {
+    "name": "Ghoul Claw",
+    "rarity": "uncommon",
+    "value": 18,
+    "type": "loot",
+    "description": "Still twitching. Unsettling."
+  },
+  "cult_idol": {
+    "name": "Cult Idol",
+    "rarity": "uncommon",
+    "value": 30,
+    "type": "loot",
+    "description": "A small figure of forbidden design."
+  },
+  "acid_sac": {
+    "name": "Acid Sac",
+    "rarity": "uncommon",
+    "value": 22,
+    "type": "loot",
+    "description": "Handle carefully. Sells well."
+  },
+  "scrap_plate": {
+    "name": "Scrap Plate",
+    "rarity": "uncommon",
+    "value": 28,
+    "type": "loot",
+    "description": "Battered metal, still valuable."
+  },
+  "troll_hide": {
+    "name": "Troll Hide",
+    "rarity": "rare",
+    "value": 45,
+    "type": "loot",
+    "description": "Regenerating leather. Pricey."
+  },
+  "wight_blade": {
+    "name": "Wight Blade",
+    "rarity": "rare",
+    "value": 55,
+    "type": "loot",
+    "description": "A cold, dark length of steel."
+  },
+  "frost_pelt": {
+    "name": "Frost Pelt",
+    "rarity": "rare",
+    "value": 60,
+    "type": "loot",
+    "description": "Never melts. Coveted by nobles."
+  },
+  "ogre_club": {
+    "name": "Ogre Club",
+    "rarity": "rare",
+    "value": 70,
+    "type": "loot",
+    "description": "Heavy enough to fell a horse."
+  },
+  "yeti_fur": {
+    "name": "Yeti Fur",
+    "rarity": "rare",
+    "value": 80,
+    "type": "loot",
+    "description": "Impossibly warm and impossibly white."
+  },
+  "ice_shard": {
+    "name": "Eternal Ice Shard",
+    "rarity": "epic",
+    "value": 120,
+    "type": "loot",
+    "description": "A sliver of unmelting cold."
+  },
+  "salamander_scale": {
+    "name": "Salamander Scale",
+    "rarity": "rare",
+    "value": 110,
+    "type": "loot",
+    "description": "Warm to the touch, fire-proof."
+  },
+  "ember_core": {
+    "name": "Ember Core",
+    "rarity": "epic",
+    "value": 180,
+    "type": "loot",
+    "description": "A still-burning heart of flame."
+  },
+  "wyvern_fang": {
+    "name": "Wyvern Fang",
+    "rarity": "epic",
+    "value": 220,
+    "type": "loot",
+    "description": "Venom-channeled and razor-keen."
+  },
+  "hound_fang": {
+    "name": "Hellhound Fang",
+    "rarity": "rare",
+    "value": 100,
+    "type": "loot",
+    "description": "Smoulders faintly, even pulled."
+  },
+  "minor_potion": {
+    "name": "Minor Healing Potion",
+    "rarity": "common",
+    "value": 8,
+    "buy_price": 20,
+    "type": "potion",
+    "heal_amount": 25,
+    "description": "A small vial that knits minor wounds. Restores 25 HP."
+  },
+  "healing_potion": {
+    "name": "Healing Potion",
+    "rarity": "common",
+    "value": 25,
+    "buy_price": 75,
+    "type": "potion",
+    "heal_amount": 55,
+    "description": "A sturdy draught for a real fight. Restores 55 HP."
+  },
+  "greater_potion": {
+    "name": "Greater Healing Potion",
+    "rarity": "uncommon",
+    "value": 60,
+    "buy_price": 220,
+    "type": "potion",
+    "heal_amount": 90,
+    "description": "Potent alchemy for hardened adventurers. Restores 90 HP."
+  },
+  "superior_potion": {
+    "name": "Superior Healing Potion",
+    "rarity": "rare",
+    "value": 160,
+    "buy_price": 600,
+    "type": "potion",
+    "heal_amount": 130,
+    "description": "The finest restorative gold can buy. Restores 130 HP."
+  },
+  "iron_sword": {
+    "name": "Iron Sword",
+    "rarity": "common",
+    "type": "weapon",
+    "damage_dice": "1d8",
+    "attack_bonus": 0,
+    "value": 20,
+    "description": "A dependable blade. (1d8, +0 to hit)",
+    "template": true
+  },
+  "steel_sword": {
+    "name": "Steel Sword",
+    "rarity": "uncommon",
+    "type": "weapon",
+    "damage_dice": "1d10",
+    "attack_bonus": 1,
+    "value": 60,
+    "description": "Keen and balanced. (1d10, +1 to hit)",
+    "template": true
+  },
+  "enchanted_blade": {
+    "name": "Enchanted Blade",
+    "rarity": "rare",
+    "type": "weapon",
+    "damage_dice": "2d6",
+    "attack_bonus": 2,
+    "value": 180,
+    "description": "Hums with power. (2d6, +2 to hit)",
+    "template": true
+  },
+  "dragonfang": {
+    "name": "Dragonfang",
+    "rarity": "epic",
+    "type": "weapon",
+    "damage_dice": "3d8",
+    "attack_bonus": 3,
+    "value": 800,
+    "description": "Forged from a dragon's tooth. (3d8, +3 to hit)",
+    "template": true
+  },
+  "leather_armor": {
+    "name": "Leather Armor",
+    "rarity": "common",
+    "type": "armor",
+    "ac_bonus": 1,
+    "value": 15,
+    "description": "Light and cheap. (+1 AC)",
+    "template": true
+  },
+  "chainmail": {
+    "name": "Chainmail",
+    "rarity": "uncommon",
+    "type": "armor",
+    "ac_bonus": 3,
+    "value": 65,
+    "description": "Solid interlocking rings. (+3 AC)",
+    "template": true
+  },
+  "plate_armor": {
+    "name": "Plate Armor",
+    "rarity": "rare",
+    "type": "armor",
+    "ac_bonus": 5,
+    "value": 220,
+    "description": "A walking fortress. (+5 AC)",
+    "template": true
+  },
+  "dragonscale": {
+    "name": "Dragonscale Mail",
+    "rarity": "epic",
+    "type": "armor",
+    "ac_bonus": 7,
+    "value": 900,
+    "description": "Scales that turn aside steel and flame. (+7 AC)",
+    "template": true
+  },
+  "lucky_charm": {
+    "name": "Lucky Charm",
+    "rarity": "uncommon",
+    "type": "charm",
+    "gold_bonus": 0.15,
+    "value": 90,
+    "buy_price": 300,
+    "description": "+15% gold from encounters."
+  },
+  "scholars_charm": {
+    "name": "Scholar's Charm",
+    "rarity": "uncommon",
+    "type": "charm",
+    "xp_bonus": 0.15,
+    "value": 90,
+    "buy_price": 300,
+    "description": "+15% XP from encounters."
+  },
+  "swift_charm": {
+    "name": "Swift Charm",
+    "rarity": "rare",
+    "type": "charm",
+    "cooldown_reduction": 0.25,
+    "value": 120,
+    "buy_price": 400,
+    "description": "-25% explore cooldown."
+  },
+  "fighter_weapon_1": {
+    "name": "Iron Greatsword",
+    "rarity": "common",
+    "type": "weapon",
+    "class": "fighter",
+    "tier": 1,
+    "damage_dice": "1d8",
+    "attack_bonus": 0,
+    "value": 20,
+    "buy_price": 60,
+    "description": "A iron greatsword forged for raw martial power. (1d8, +0 to hit)"
+  },
+  "fighter_armor_1": {
+    "name": "Battered Plate",
+    "rarity": "common",
+    "type": "armor",
+    "class": "fighter",
+    "tier": 1,
+    "ac_bonus": 1,
+    "value": 15,
+    "buy_price": 50,
+    "description": "Battered Plate, forged for raw martial power. (+1 AC)"
+  },
+  "fighter_weapon_2": {
+    "name": "Steel Greatsword",
+    "rarity": "uncommon",
+    "type": "weapon",
+    "class": "fighter",
+    "tier": 2,
+    "damage_dice": "1d10",
+    "attack_bonus": 1,
+    "value": 60,
+    "buy_price": 200,
+    "description": "A steel greatsword forged for raw martial power. (1d10, +1 to hit)"
+  },
+  "fighter_armor_2": {
+    "name": "Soldier's Plate",
+    "rarity": "uncommon",
+    "type": "armor",
+    "class": "fighter",
+    "tier": 2,
+    "ac_bonus": 3,
+    "value": 65,
+    "buy_price": 220,
+    "description": "Soldier's Plate, forged for raw martial power. (+3 AC)"
+  },
+  "fighter_weapon_3": {
+    "name": "Runed Warblade",
+    "rarity": "rare",
+    "type": "weapon",
+    "class": "fighter",
+    "tier": 3,
+    "damage_dice": "2d6",
+    "attack_bonus": 2,
+    "value": 180,
+    "buy_price": 600,
+    "description": "A runed warblade forged for raw martial power. (2d6, +2 to hit)"
+  },
+  "fighter_armor_3": {
+    "name": "Knight's Plate",
+    "rarity": "rare",
+    "type": "armor",
+    "class": "fighter",
+    "tier": 3,
+    "ac_bonus": 5,
+    "value": 220,
+    "buy_price": 700,
+    "description": "Knight's Plate, forged for raw martial power. (+5 AC)"
+  },
+  "fighter_weapon_4": {
+    "name": "Dragonfang Greatblade",
+    "rarity": "epic",
+    "type": "weapon",
+    "class": "fighter",
+    "tier": 4,
+    "damage_dice": "3d8",
+    "attack_bonus": 3,
+    "value": 800,
+    "buy_price": 2500,
+    "description": "A dragonfang greatblade forged for raw martial power. (3d8, +3 to hit)"
+  },
+  "fighter_armor_4": {
+    "name": "Dragonscale Plate",
+    "rarity": "epic",
+    "type": "armor",
+    "class": "fighter",
+    "tier": 4,
+    "ac_bonus": 7,
+    "value": 900,
+    "buy_price": 2800,
+    "description": "Dragonscale Plate, forged for raw martial power. (+7 AC)"
+  },
+  "rogue_weapon_1": {
+    "name": "Iron Dirk",
+    "rarity": "common",
+    "type": "weapon",
+    "class": "rogue",
+    "tier": 1,
+    "damage_dice": "1d8",
+    "attack_bonus": 0,
+    "value": 20,
+    "buy_price": 60,
+    "description": "A iron dirk balanced for a swift, deadly strike. (1d8, +0 to hit)"
+  },
+  "rogue_armor_1": {
+    "name": "Worn Leathers",
+    "rarity": "common",
+    "type": "armor",
+    "class": "rogue",
+    "tier": 1,
+    "ac_bonus": 1,
+    "value": 15,
+    "buy_price": 50,
+    "description": "Worn Leathers, balanced for a swift, deadly strike. (+1 AC)"
+  },
+  "rogue_weapon_2": {
+    "name": "Steel Stiletto",
+    "rarity": "uncommon",
+    "type": "weapon",
+    "class": "rogue",
+    "tier": 2,
+    "damage_dice": "1d10",
+    "attack_bonus": 1,
+    "value": 60,
+    "buy_price": 200,
+    "description": "A steel stiletto balanced for a swift, deadly strike. (1d10, +1 to hit)"
+  },
+  "rogue_armor_2": {
+    "name": "Studded Leather",
+    "rarity": "uncommon",
+    "type": "armor",
+    "class": "rogue",
+    "tier": 2,
+    "ac_bonus": 3,
+    "value": 65,
+    "buy_price": 220,
+    "description": "Studded Leather, balanced for a swift, deadly strike. (+3 AC)"
+  },
+  "rogue_weapon_3": {
+    "name": "Shadowfang Dagger",
+    "rarity": "rare",
+    "type": "weapon",
+    "class": "rogue",
+    "tier": 3,
+    "damage_dice": "2d6",
+    "attack_bonus": 2,
+    "value": 180,
+    "buy_price": 600,
+    "description": "A shadowfang dagger balanced for a swift, deadly strike. (2d6, +2 to hit)"
+  },
+  "rogue_armor_3": {
+    "name": "Shadowweave Armor",
+    "rarity": "rare",
+    "type": "armor",
+    "class": "rogue",
+    "tier": 3,
+    "ac_bonus": 5,
+    "value": 220,
+    "buy_price": 700,
+    "description": "Shadowweave Armor, balanced for a swift, deadly strike. (+5 AC)"
+  },
+  "rogue_weapon_4": {
+    "name": "Dragonfang Kris",
+    "rarity": "epic",
+    "type": "weapon",
+    "class": "rogue",
+    "tier": 4,
+    "damage_dice": "3d8",
+    "attack_bonus": 3,
+    "value": 800,
+    "buy_price": 2500,
+    "description": "A dragonfang kris balanced for a swift, deadly strike. (3d8, +3 to hit)"
+  },
+  "rogue_armor_4": {
+    "name": "Dragonhide Leathers",
+    "rarity": "epic",
+    "type": "armor",
+    "class": "rogue",
+    "tier": 4,
+    "ac_bonus": 7,
+    "value": 900,
+    "buy_price": 2800,
+    "description": "Dragonhide Leathers, balanced for a swift, deadly strike. (+7 AC)"
+  },
+  "wizard_weapon_1": {
+    "name": "Oak Staff",
+    "rarity": "common",
+    "type": "weapon",
+    "class": "wizard",
+    "tier": 1,
+    "damage_dice": "1d8",
+    "attack_bonus": 0,
+    "value": 20,
+    "buy_price": 60,
+    "description": "A oak staff humming with arcane focus. (1d8, +0 to hit)"
+  },
+  "wizard_armor_1": {
+    "name": "Apprentice Robes",
+    "rarity": "common",
+    "type": "armor",
+    "class": "wizard",
+    "tier": 1,
+    "ac_bonus": 1,
+    "value": 15,
+    "buy_price": 50,
+    "description": "Apprentice Robes, humming with arcane focus. (+1 AC)"
+  },
+  "wizard_weapon_2": {
+    "name": "Runed Staff",
+    "rarity": "uncommon",
+    "type": "weapon",
+    "class": "wizard",
+    "tier": 2,
+    "damage_dice": "1d10",
+    "attack_bonus": 1,
+    "value": 60,
+    "buy_price": 200,
+    "description": "A runed staff humming with arcane focus. (1d10, +1 to hit)"
+  },
+  "wizard_armor_2": {
+    "name": "Mage Robes",
+    "rarity": "uncommon",
+    "type": "armor",
+    "class": "wizard",
+    "tier": 2,
+    "ac_bonus": 3,
+    "value": 65,
+    "buy_price": 220,
+    "description": "Mage Robes, humming with arcane focus. (+3 AC)"
+  },
+  "wizard_weapon_3": {
+    "name": "Arcane Scepter",
+    "rarity": "rare",
+    "type": "weapon",
+    "class": "wizard",
+    "tier": 3,
+    "damage_dice": "2d6",
+    "attack_bonus": 2,
+    "value": 180,
+    "buy_price": 600,
+    "description": "A arcane scepter humming with arcane focus. (2d6, +2 to hit)"
+  },
+  "wizard_armor_3": {
+    "name": "Archmage Vestments",
+    "rarity": "rare",
+    "type": "armor",
+    "class": "wizard",
+    "tier": 3,
+    "ac_bonus": 5,
+    "value": 220,
+    "buy_price": 700,
+    "description": "Archmage Vestments, humming with arcane focus. (+5 AC)"
+  },
+  "wizard_weapon_4": {
+    "name": "Dragonbone Staff",
+    "rarity": "epic",
+    "type": "weapon",
+    "class": "wizard",
+    "tier": 4,
+    "damage_dice": "3d8",
+    "attack_bonus": 3,
+    "value": 800,
+    "buy_price": 2500,
+    "description": "A dragonbone staff humming with arcane focus. (3d8, +3 to hit)"
+  },
+  "wizard_armor_4": {
+    "name": "Dragonsilk Robes",
+    "rarity": "epic",
+    "type": "armor",
+    "class": "wizard",
+    "tier": 4,
+    "ac_bonus": 7,
+    "value": 900,
+    "buy_price": 2800,
+    "description": "Dragonsilk Robes, humming with arcane focus. (+7 AC)"
+  },
+  "cleric_weapon_1": {
+    "name": "Iron Mace",
+    "rarity": "common",
+    "type": "weapon",
+    "class": "cleric",
+    "tier": 1,
+    "damage_dice": "1d8",
+    "attack_bonus": 0,
+    "value": 20,
+    "buy_price": 60,
+    "description": "A iron mace blessed with divine resilience. (1d8, +0 to hit)"
+  },
+  "cleric_armor_1": {
+    "name": "Acolyte's Chain",
+    "rarity": "common",
+    "type": "armor",
+    "class": "cleric",
+    "tier": 1,
+    "ac_bonus": 1,
+    "value": 15,
+    "buy_price": 50,
+    "description": "Acolyte's Chain, blessed with divine resilience. (+1 AC)"
+  },
+  "cleric_weapon_2": {
+    "name": "Blessed Mace",
+    "rarity": "uncommon",
+    "type": "weapon",
+    "class": "cleric",
+    "tier": 2,
+    "damage_dice": "1d10",
+    "attack_bonus": 1,
+    "value": 60,
+    "buy_price": 200,
+    "description": "A blessed mace blessed with divine resilience. (1d10, +1 to hit)"
+  },
+  "cleric_armor_2": {
+    "name": "Blessed Chainmail",
+    "rarity": "uncommon",
+    "type": "armor",
+    "class": "cleric",
+    "tier": 2,
+    "ac_bonus": 3,
+    "value": 65,
+    "buy_price": 220,
+    "description": "Blessed Chainmail, blessed with divine resilience. (+3 AC)"
+  },
+  "cleric_weapon_3": {
+    "name": "Sanctified Warhammer",
+    "rarity": "rare",
+    "type": "weapon",
+    "class": "cleric",
+    "tier": 3,
+    "damage_dice": "2d6",
+    "attack_bonus": 2,
+    "value": 180,
+    "buy_price": 600,
+    "description": "A sanctified warhammer blessed with divine resilience. (2d6, +2 to hit)"
+  },
+  "cleric_armor_3": {
+    "name": "Templar Plate",
+    "rarity": "rare",
+    "type": "armor",
+    "class": "cleric",
+    "tier": 3,
+    "ac_bonus": 5,
+    "value": 220,
+    "buy_price": 700,
+    "description": "Templar Plate, blessed with divine resilience. (+5 AC)"
+  },
+  "cleric_weapon_4": {
+    "name": "Dragonfang Maul",
+    "rarity": "epic",
+    "type": "weapon",
+    "class": "cleric",
+    "tier": 4,
+    "damage_dice": "3d8",
+    "attack_bonus": 3,
+    "value": 800,
+    "buy_price": 2500,
+    "description": "A dragonfang maul blessed with divine resilience. (3d8, +3 to hit)"
+  },
+  "cleric_armor_4": {
+    "name": "Dragonscale Vestments",
+    "rarity": "epic",
+    "type": "armor",
+    "class": "cleric",
+    "tier": 4,
+    "ac_bonus": 7,
+    "value": 900,
+    "buy_price": 2800,
+    "description": "Dragonscale Vestments, blessed with divine resilience. (+7 AC)"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "_meta": {
+    "level_req": 3,
+    "note": "Chosen once at level 3+. Permanent. Reshapes your signature ability and combat profile."
+  },
+  "fighter": [
+    {
+      "id": "champion",
+      "name": "Champion",
+      "emoji": "🛡️",
+      "tagline": "Improved Critical.",
+      "description": "A relentless bruiser who turns glancing blows into devastating ones.",
+      "bonuses": {
+        "crit": 0.1,
+        "damage": 2
+      }
+    },
+    {
+      "id": "berserker",
+      "name": "Berserker",
+      "emoji": "🪓",
+      "tagline": "Reckless Power.",
+      "description": "Throws caution aside — Power Attack lands far harder, and blood spilled is health regained.",
+      "bonuses": {
+        "ability_potency": 1.3,
+        "lifesteal": 0.06,
+        "ac": -1
+      }
+    }
+  ],
+  "rogue": [
+    {
+      "id": "assassin",
+      "name": "Assassin",
+      "emoji": "🗡️",
+      "tagline": "Deadly Opener.",
+      "description": "Strikes first and hardest — a Sneak Attack that can end fights outright.",
+      "bonuses": {
+        "ability_potency": 1.35,
+        "crit": 0.05
+      }
+    },
+    {
+      "id": "swashbuckler",
+      "name": "Swashbuckler",
+      "emoji": "🎩",
+      "tagline": "Fancy Footwork.",
+      "description": "A duelist who dances out of reach, bleeds foes for vigor, and pockets extra coin.",
+      "bonuses": {
+        "lifesteal": 0.1,
+        "ac": 2,
+        "gold": 0.05
+      }
+    }
+  ],
+  "wizard": [
+    {
+      "id": "evoker",
+      "name": "Evoker",
+      "emoji": "💥",
+      "tagline": "Overchannel.",
+      "description": "Pours everything into the blast — a Fireball that incinerates almost anything.",
+      "bonuses": {
+        "ability_potency": 1.45,
+        "xp": 0.05
+      }
+    },
+    {
+      "id": "abjurer",
+      "name": "Abjurer",
+      "emoji": "🛡️",
+      "tagline": "Arcane Ward.",
+      "description": "Wraps a protective ward around the frail mage, trading a little burst for real durability.",
+      "bonuses": {
+        "hp_per_level": 3,
+        "ac": 2,
+        "ability_potency": 0.9
+      }
+    }
+  ],
+  "cleric": [
+    {
+      "id": "life",
+      "name": "Life Domain",
+      "emoji": "🕊️",
+      "tagline": "Blessed Healer.",
+      "description": "Channels brighter light — a far stronger Heal and a sturdier frame.",
+      "bonuses": {
+        "ability_potency": 1.4,
+        "hp_per_level": 2
+      }
+    },
+    {
+      "id": "war",
+      "name": "War Domain",
+      "emoji": "⚖️",
+      "tagline": "Holy Warrior.",
+      "description": "Trades some healing for the smite — real offense from a holy warrior.",
+      "bonuses": {
+        "damage": 3,
+        "crit": 0.06,
+        "ability_potency": 0.85
+      }
+    }
+  ]
+}

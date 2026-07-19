@@ -1,0 +1,118 @@
+{
+  "fighter": {
+    "name": "Fighter",
+    "emoji": "⚔️",
+    "description": "A frontline warrior. High HP, reliable melee, hard to put down.",
+    "hit_die": 10,
+    "attack_stat": "str",
+    "base_attack": {
+      "name": "Longsword",
+      "damage_dice": "1d8"
+    },
+    "stats": {
+      "str": 16,
+      "dex": 13,
+      "con": 15,
+      "int": 8,
+      "wis": 10,
+      "cha": 12
+    },
+    "ability": {
+      "name": "Power Attack",
+      "description": "Strike for double damage dice at -2 to hit.",
+      "cost": 2
+    },
+    "passive": {
+      "name": "Tough",
+      "description": "+2 maximum HP every level."
+    },
+    "resource_label": "EP"
+  },
+  "rogue": {
+    "name": "Rogue",
+    "emoji": "🗡️",
+    "description": "A nimble skirmisher. Hits hard from the shadows and pockets extra coin.",
+    "hit_die": 8,
+    "attack_stat": "dex",
+    "base_attack": {
+      "name": "Shortsword",
+      "damage_dice": "1d8"
+    },
+    "stats": {
+      "str": 10,
+      "dex": 16,
+      "con": 13,
+      "int": 12,
+      "wis": 14,
+      "cha": 8
+    },
+    "ability": {
+      "name": "Sneak Attack",
+      "description": "Your next hit is an automatic critical.",
+      "cost": 3
+    },
+    "passive": {
+      "name": "Pickpocket",
+      "description": "+10% gold from loot."
+    },
+    "resource_label": "EP"
+  },
+  "wizard": {
+    "name": "Wizard",
+    "emoji": "🧙",
+    "description": "A glass cannon. Low HP, devastating magic, learns fast.",
+    "hit_die": 6,
+    "attack_stat": "int",
+    "base_attack": {
+      "name": "Fire Bolt",
+      "damage_dice": "1d10"
+    },
+    "stats": {
+      "str": 8,
+      "dex": 14,
+      "con": 14,
+      "int": 16,
+      "wis": 14,
+      "cha": 10
+    },
+    "ability": {
+      "name": "Fireball",
+      "description": "Hurl a burst of flame for heavy guaranteed damage.",
+      "cost": 3
+    },
+    "passive": {
+      "name": "Studious",
+      "description": "+10% XP from encounters."
+    },
+    "resource_label": "MP"
+  },
+  "cleric": {
+    "name": "Cleric",
+    "emoji": "✨",
+    "description": "A durable support. Heals in a pinch and cheats death once a day.",
+    "hit_die": 8,
+    "attack_stat": "wis",
+    "base_attack": {
+      "name": "Mace",
+      "damage_dice": "1d6"
+    },
+    "stats": {
+      "str": 12,
+      "dex": 10,
+      "con": 14,
+      "int": 11,
+      "wis": 16,
+      "cha": 13
+    },
+    "ability": {
+      "name": "Heal",
+      "description": "Restore 30% of your maximum HP.",
+      "cost": 3
+    },
+    "passive": {
+      "name": "Divine Favor",
+      "description": "Survive one otherwise-lethal hit per day at 1 HP."
+    },
+    "resource_label": "MP"
+  }
+}

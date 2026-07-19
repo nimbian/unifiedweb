@@ -1,0 +1,1006 @@
+{
+  "giant_rat": {
+    "name": "Giant Rat",
+    "cr": 0.125,
+    "family": "beast",
+    "ac": 12,
+    "hp": "1d4+1",
+    "attack": {
+      "name": "Bite",
+      "bonus": 2,
+      "damage_dice": "1d4",
+      "damage_bonus": 0
+    },
+    "xp": 10,
+    "gold": [
+      1,
+      5
+    ],
+    "loot_table": [
+      {
+        "item": "rat_tail",
+        "weight": 50
+      },
+      {
+        "nothing": true,
+        "weight": 50
+      }
+    ]
+  },
+  "kobold": {
+    "name": "Kobold",
+    "cr": 0.125,
+    "family": "humanoid",
+    "ac": 12,
+    "hp": "1d6+1",
+    "attack": {
+      "name": "Dagger",
+      "bonus": 4,
+      "damage_dice": "1d4",
+      "damage_bonus": 2
+    },
+    "xp": 15,
+    "gold": [
+      2,
+      10
+    ],
+    "loot_table": [
+      {
+        "item": "kobold_tooth",
+        "weight": 45
+      },
+      {
+        "item": "rusty_dagger",
+        "weight": 15
+      },
+      {
+        "nothing": true,
+        "weight": 40
+      }
+    ]
+  },
+  "bandit": {
+    "name": "Bandit",
+    "cr": 0.125,
+    "family": "humanoid",
+    "ac": 12,
+    "hp": "2d8",
+    "attack": {
+      "name": "Scimitar",
+      "bonus": 3,
+      "damage_dice": "1d6",
+      "damage_bonus": 1
+    },
+    "xp": 25,
+    "gold": [
+      5,
+      25
+    ],
+    "loot_table": [
+      {
+        "item": "worn_boots",
+        "weight": 30
+      },
+      {
+        "item": "shiny_trinket",
+        "weight": 10
+      },
+      {
+        "nothing": true,
+        "weight": 60
+      }
+    ]
+  },
+  "giant_spider": {
+    "name": "Giant Spider",
+    "cr": 0.25,
+    "family": "beast",
+    "ac": 13,
+    "hp": "2d6",
+    "attack": {
+      "name": "Venomous Bite",
+      "bonus": 3,
+      "damage_dice": "1d6",
+      "damage_bonus": 1
+    },
+    "xp": 40,
+    "gold": [
+      2,
+      12
+    ],
+    "loot_table": [
+      {
+        "item": "spider_silk",
+        "weight": 55
+      },
+      {
+        "nothing": true,
+        "weight": 45
+      }
+    ]
+  },
+  "goblin": {
+    "name": "Goblin",
+    "cr": 0.25,
+    "family": "humanoid",
+    "ac": 13,
+    "hp": "2d6",
+    "attack": {
+      "name": "Scimitar",
+      "bonus": 4,
+      "damage_dice": "1d6",
+      "damage_bonus": 2
+    },
+    "xp": 50,
+    "gold": [
+      5,
+      20
+    ],
+    "loot_table": [
+      {
+        "item": "goblin_ear",
+        "weight": 55
+      },
+      {
+        "item": "rusty_dagger",
+        "weight": 15
+      },
+      {
+        "nothing": true,
+        "weight": 30
+      }
+    ]
+  },
+  "wolf": {
+    "name": "Wolf",
+    "cr": 0.25,
+    "family": "beast",
+    "ac": 13,
+    "hp": "2d8",
+    "attack": {
+      "name": "Bite",
+      "bonus": 4,
+      "damage_dice": "2d4",
+      "damage_bonus": 2
+    },
+    "xp": 50,
+    "gold": [
+      0,
+      5
+    ],
+    "loot_table": [
+      {
+        "item": "wolf_pelt",
+        "weight": 60
+      },
+      {
+        "nothing": true,
+        "weight": 40
+      }
+    ]
+  },
+  "hobgoblin": {
+    "name": "Hobgoblin",
+    "cr": 0.5,
+    "family": "humanoid",
+    "ac": 15,
+    "hp": "3d8",
+    "attack": {
+      "name": "Longsword",
+      "bonus": 4,
+      "damage_dice": "1d8",
+      "damage_bonus": 2
+    },
+    "xp": 100,
+    "gold": [
+      15,
+      40
+    ],
+    "loot_table": [
+      {
+        "item": "goblin_charm_loot",
+        "weight": 25
+      },
+      {
+        "item": "iron_sword",
+        "weight": 10
+      },
+      {
+        "item": "shiny_trinket",
+        "weight": 20
+      },
+      {
+        "nothing": true,
+        "weight": 45
+      }
+    ]
+  },
+  "dire_boar": {
+    "name": "Dire Boar",
+    "cr": 1.0,
+    "family": "beast",
+    "ac": 12,
+    "hp": "3d10",
+    "attack": {
+      "name": "Tusk",
+      "bonus": 5,
+      "damage_dice": "1d8",
+      "damage_bonus": 3
+    },
+    "xp": 200,
+    "gold": [
+      0,
+      10
+    ],
+    "loot_table": [
+      {
+        "item": "boar_tusk",
+        "weight": 65
+      },
+      {
+        "item": "gold_ring",
+        "weight": 10
+      },
+      {
+        "nothing": true,
+        "weight": 25
+      }
+    ]
+  },
+  "skeleton": {
+    "name": "Skeleton",
+    "cr": 1.0,
+    "family": "undead",
+    "ac": 13,
+    "hp": "3d8",
+    "attack": {
+      "name": "Shortsword",
+      "bonus": 4,
+      "damage_dice": "1d6",
+      "damage_bonus": 2
+    },
+    "xp": 80,
+    "gold": [
+      5,
+      20
+    ],
+    "loot_table": [
+      {
+        "item": "bone_dust",
+        "weight": 60
+      },
+      {
+        "nothing": true,
+        "weight": 40
+      }
+    ]
+  },
+  "zombie": {
+    "name": "Zombie",
+    "cr": 1.0,
+    "family": "undead",
+    "ac": 9,
+    "hp": "4d8",
+    "attack": {
+      "name": "Slam",
+      "bonus": 3,
+      "damage_dice": "1d8",
+      "damage_bonus": 1
+    },
+    "xp": 90,
+    "gold": [
+      3,
+      15
+    ],
+    "loot_table": [
+      {
+        "item": "rotting_flesh",
+        "weight": 65
+      },
+      {
+        "nothing": true,
+        "weight": 35
+      }
+    ]
+  },
+  "ghoul": {
+    "name": "Ghoul",
+    "cr": 1.0,
+    "family": "undead",
+    "ac": 12,
+    "hp": "4d8",
+    "attack": {
+      "name": "Claws",
+      "bonus": 4,
+      "damage_dice": "2d4",
+      "damage_bonus": 2
+    },
+    "xp": 120,
+    "gold": [
+      10,
+      30
+    ],
+    "loot_table": [
+      {
+        "item": "ghoul_claw",
+        "weight": 45
+      },
+      {
+        "item": "iron_sword",
+        "weight": 10
+      },
+      {
+        "nothing": true,
+        "weight": 45
+      }
+    ]
+  },
+  "cultist": {
+    "name": "Cultist",
+    "cr": 1.0,
+    "family": "humanoid",
+    "ac": 12,
+    "hp": "3d8",
+    "attack": {
+      "name": "Ritual Dagger",
+      "bonus": 4,
+      "damage_dice": "1d8",
+      "damage_bonus": 2
+    },
+    "xp": 110,
+    "gold": [
+      15,
+      45
+    ],
+    "loot_table": [
+      {
+        "item": "cult_idol",
+        "weight": 40
+      },
+      {
+        "item": "leather_armor",
+        "weight": 10
+      },
+      {
+        "nothing": true,
+        "weight": 50
+      }
+    ]
+  },
+  "wraith": {
+    "name": "Wraith",
+    "cr": 3.0,
+    "family": "undead",
+    "ac": 14,
+    "hp": "7d8",
+    "attack": {
+      "name": "Life Drain",
+      "bonus": 5,
+      "damage_dice": "2d8",
+      "damage_bonus": 3
+    },
+    "xp": 400,
+    "gold": [
+      40,
+      90
+    ],
+    "loot_table": [
+      {
+        "item": "enchanted_blade",
+        "weight": 8
+      },
+      {
+        "item": "gold_ring",
+        "weight": 20
+      },
+      {
+        "nothing": true,
+        "weight": 72
+      }
+    ]
+  },
+  "gray_ooze": {
+    "name": "Gray Ooze",
+    "cr": 3.0,
+    "family": "ooze",
+    "ac": 9,
+    "hp": "5d8",
+    "attack": {
+      "name": "Pseudopod",
+      "bonus": 4,
+      "damage_dice": "2d6",
+      "damage_bonus": 2
+    },
+    "xp": 200,
+    "gold": [
+      5,
+      20
+    ],
+    "loot_table": [
+      {
+        "item": "acid_sac",
+        "weight": 55
+      },
+      {
+        "nothing": true,
+        "weight": 45
+      }
+    ]
+  },
+  "animated_armor": {
+    "name": "Animated Armor",
+    "cr": 3.0,
+    "family": "construct",
+    "ac": 18,
+    "hp": "6d8",
+    "attack": {
+      "name": "Slam",
+      "bonus": 5,
+      "damage_dice": "1d10",
+      "damage_bonus": 3
+    },
+    "xp": 250,
+    "gold": [
+      10,
+      30
+    ],
+    "loot_table": [
+      {
+        "item": "scrap_plate",
+        "weight": 50
+      },
+      {
+        "item": "chainmail",
+        "weight": 8
+      },
+      {
+        "nothing": true,
+        "weight": 42
+      }
+    ]
+  },
+  "cave_troll": {
+    "name": "Cave Troll",
+    "cr": 4.0,
+    "family": "giant",
+    "ac": 14,
+    "hp": "8d8",
+    "attack": {
+      "name": "Claw",
+      "bonus": 6,
+      "damage_dice": "2d8",
+      "damage_bonus": 4
+    },
+    "xp": 350,
+    "gold": [
+      20,
+      60
+    ],
+    "loot_table": [
+      {
+        "item": "troll_hide",
+        "weight": 50
+      },
+      {
+        "nothing": true,
+        "weight": 50
+      }
+    ]
+  },
+  "wight": {
+    "name": "Wight",
+    "cr": 4.0,
+    "family": "undead",
+    "ac": 14,
+    "hp": "6d8",
+    "attack": {
+      "name": "Life Drain",
+      "bonus": 5,
+      "damage_dice": "2d6",
+      "damage_bonus": 3
+    },
+    "xp": 300,
+    "gold": [
+      30,
+      80
+    ],
+    "loot_table": [
+      {
+        "item": "wight_blade",
+        "weight": 35
+      },
+      {
+        "item": "chainmail",
+        "weight": 12
+      },
+      {
+        "nothing": true,
+        "weight": 53
+      }
+    ]
+  },
+  "will_o_wisp": {
+    "name": "Will-o'-Wisp",
+    "cr": 5.0,
+    "family": "aberration",
+    "ac": 16,
+    "hp": "9d8",
+    "attack": {
+      "name": "Shock",
+      "bonus": 6,
+      "damage_dice": "3d6",
+      "damage_bonus": 3
+    },
+    "xp": 600,
+    "gold": [
+      60,
+      140
+    ],
+    "loot_table": [
+      {
+        "item": "plate_armor",
+        "weight": 8
+      },
+      {
+        "item": "scholars_charm",
+        "weight": 12
+      },
+      {
+        "item": "gold_ring",
+        "weight": 20
+      },
+      {
+        "nothing": true,
+        "weight": 60
+      }
+    ]
+  },
+  "winter_wolf": {
+    "name": "Winter Wolf",
+    "cr": 5.0,
+    "family": "beast",
+    "ac": 13,
+    "hp": "8d10",
+    "attack": {
+      "name": "Frost Bite",
+      "bonus": 6,
+      "damage_dice": "2d6",
+      "damage_bonus": 4
+    },
+    "xp": 500,
+    "gold": [
+      10,
+      40
+    ],
+    "loot_table": [
+      {
+        "item": "frost_pelt",
+        "weight": 45
+      },
+      {
+        "nothing": true,
+        "weight": 55
+      }
+    ]
+  },
+  "ogre": {
+    "name": "Ogre",
+    "cr": 6.0,
+    "family": "giant",
+    "ac": 11,
+    "hp": "10d10",
+    "attack": {
+      "name": "Greatclub",
+      "bonus": 7,
+      "damage_dice": "2d8",
+      "damage_bonus": 5
+    },
+    "xp": 700,
+    "gold": [
+      30,
+      80
+    ],
+    "loot_table": [
+      {
+        "item": "ogre_club",
+        "weight": 45
+      },
+      {
+        "nothing": true,
+        "weight": 55
+      }
+    ]
+  },
+  "yeti": {
+    "name": "Yeti",
+    "cr": 6.0,
+    "family": "monstrosity",
+    "ac": 12,
+    "hp": "10d10",
+    "attack": {
+      "name": "Claws",
+      "bonus": 7,
+      "damage_dice": "2d6",
+      "damage_bonus": 4
+    },
+    "xp": 750,
+    "gold": [
+      40,
+      100
+    ],
+    "loot_table": [
+      {
+        "item": "yeti_fur",
+        "weight": 40
+      },
+      {
+        "nothing": true,
+        "weight": 60
+      }
+    ]
+  },
+  "ice_elemental": {
+    "name": "Ice Elemental",
+    "cr": 7.0,
+    "family": "elemental",
+    "ac": 15,
+    "hp": "12d10",
+    "attack": {
+      "name": "Glacial Slam",
+      "bonus": 8,
+      "damage_dice": "2d10",
+      "damage_bonus": 5
+    },
+    "xp": 900,
+    "gold": [
+      50,
+      120
+    ],
+    "loot_table": [
+      {
+        "item": "ice_shard",
+        "weight": 25
+      },
+      {
+        "item": "swift_charm",
+        "weight": 10
+      },
+      {
+        "nothing": true,
+        "weight": 65
+      }
+    ]
+  },
+  "frost_giant": {
+    "name": "Frost Giant",
+    "cr": 8.0,
+    "family": "giant",
+    "ac": 15,
+    "hp": "15d12",
+    "attack": {
+      "name": "Greataxe",
+      "bonus": 9,
+      "damage_dice": "3d8",
+      "damage_bonus": 6
+    },
+    "xp": 1500,
+    "gold": [
+      70,
+      170
+    ],
+    "loot_table": [
+      {
+        "item": "dragonscale",
+        "weight": 6
+      },
+      {
+        "item": "dragonfang",
+        "weight": 6
+      },
+      {
+        "item": "gold_ring",
+        "weight": 25
+      },
+      {
+        "nothing": true,
+        "weight": 63
+      }
+    ]
+  },
+  "salamander": {
+    "name": "Salamander",
+    "cr": 8.0,
+    "family": "elemental",
+    "ac": 16,
+    "hp": "20d8",
+    "attack": {
+      "name": "Tail",
+      "bonus": 10,
+      "damage_dice": "3d10",
+      "damage_bonus": 5
+    },
+    "xp": 1100,
+    "gold": [
+      40,
+      120
+    ],
+    "loot_table": [
+      {
+        "item": "salamander_scale",
+        "weight": 45
+      },
+      {
+        "nothing": true,
+        "weight": 55
+      }
+    ]
+  },
+  "fire_elemental": {
+    "name": "Fire Elemental",
+    "cr": 9.0,
+    "family": "elemental",
+    "ac": 16,
+    "hp": "22d8",
+    "attack": {
+      "name": "Burn",
+      "bonus": 10,
+      "damage_dice": "3d10",
+      "damage_bonus": 4
+    },
+    "xp": 1250,
+    "gold": [
+      55,
+      150
+    ],
+    "loot_table": [
+      {
+        "item": "ember_core",
+        "weight": 30
+      },
+      {
+        "nothing": true,
+        "weight": 70
+      }
+    ]
+  },
+  "hell_hound": {
+    "name": "Hell Hound",
+    "cr": 9.0,
+    "family": "fiend",
+    "ac": 16,
+    "hp": "20d8",
+    "attack": {
+      "name": "Fire Bite",
+      "bonus": 10,
+      "damage_dice": "3d8",
+      "damage_bonus": 6
+    },
+    "xp": 1200,
+    "gold": [
+      60,
+      150
+    ],
+    "loot_table": [
+      {
+        "item": "hound_fang",
+        "weight": 40
+      },
+      {
+        "nothing": true,
+        "weight": 60
+      }
+    ]
+  },
+  "wyvern": {
+    "name": "Wyvern",
+    "cr": 10.0,
+    "family": "dragon",
+    "ac": 17,
+    "hp": "24d8",
+    "attack": {
+      "name": "Stinger",
+      "bonus": 11,
+      "damage_dice": "3d10",
+      "damage_bonus": 6
+    },
+    "xp": 1700,
+    "gold": [
+      70,
+      170
+    ],
+    "loot_table": [
+      {
+        "item": "wyvern_fang",
+        "weight": 30
+      },
+      {
+        "item": "gold_ring",
+        "weight": 25
+      },
+      {
+        "nothing": true,
+        "weight": 45
+      }
+    ]
+  },
+  "young_red_dragon": {
+    "name": "Young Red Dragon",
+    "cr": 12.0,
+    "family": "dragon",
+    "ac": 19,
+    "hp": "24d10",
+    "attack": {
+      "name": "Bite & Claw",
+      "bonus": 12,
+      "damage_dice": "4d10",
+      "damage_bonus": 7
+    },
+    "xp": 4000,
+    "gold": [
+      250,
+      550
+    ],
+    "loot_table": [
+      {
+        "item": "dragonfang",
+        "weight": 18
+      },
+      {
+        "item": "dragonscale",
+        "weight": 18
+      },
+      {
+        "item": "gold_ring",
+        "weight": 30
+      },
+      {
+        "nothing": true,
+        "weight": 34
+      }
+    ]
+  },
+  "forest_chieftain": {
+    "name": "Gnarlbark the Forest Chieftain",
+    "cr": 3.0,
+    "family": "beast",
+    "ac": 14,
+    "hp": "5d8",
+    "attack": {
+      "name": "Antler Charge",
+      "bonus": 5,
+      "damage_dice": "1d10",
+      "damage_bonus": 3
+    },
+    "xp": 350,
+    "gold": [
+      40,
+      100
+    ],
+    "loot_table": [
+      {
+        "item": "steel_sword",
+        "weight": 8
+      },
+      {
+        "item": "chainmail",
+        "weight": 8
+      },
+      {
+        "item": "gold_ring",
+        "weight": 18
+      },
+      {
+        "nothing": true,
+        "weight": 26
+      }
+    ]
+  },
+  "bone_colossus": {
+    "name": "The Bone Colossus",
+    "cr": 6.0,
+    "family": "undead",
+    "ac": 16,
+    "hp": "10d8",
+    "attack": {
+      "name": "Crushing Slam",
+      "bonus": 7,
+      "damage_dice": "2d8",
+      "damage_bonus": 4
+    },
+    "xp": 800,
+    "gold": [
+      65,
+      150
+    ],
+    "loot_table": [
+      {
+        "item": "enchanted_blade",
+        "weight": 7
+      },
+      {
+        "item": "plate_armor",
+        "weight": 7
+      },
+      {
+        "item": "gold_ring",
+        "weight": 16
+      },
+      {
+        "nothing": true,
+        "weight": 30
+      }
+    ]
+  },
+  "drowned_leviathan": {
+    "name": "The Drowned Leviathan",
+    "cr": 9.0,
+    "family": "aberration",
+    "ac": 18,
+    "hp": "18d8",
+    "attack": {
+      "name": "Tide Crush",
+      "bonus": 9,
+      "damage_dice": "3d8",
+      "damage_bonus": 6
+    },
+    "xp": 1300,
+    "gold": [
+      75,
+      180
+    ],
+    "loot_table": [
+      {
+        "item": "enchanted_blade",
+        "weight": 8
+      },
+      {
+        "item": "plate_armor",
+        "weight": 8
+      },
+      {
+        "item": "swift_charm",
+        "weight": 10
+      },
+      {
+        "nothing": true,
+        "weight": 28
+      }
+    ]
+  },
+  "frost_wyrm": {
+    "name": "Hoarfrost, the Frost Wyrm",
+    "cr": 13.0,
+    "family": "dragon",
+    "ac": 19,
+    "hp": "20d10",
+    "attack": {
+      "name": "Frost Breath",
+      "bonus": 11,
+      "damage_dice": "4d8",
+      "damage_bonus": 8
+    },
+    "xp": 2400,
+    "gold": [
+      95,
+      230
+    ],
+    "loot_table": [
+      {
+        "item": "dragonfang",
+        "weight": 7
+      },
+      {
+        "item": "dragonscale",
+        "weight": 7
+      },
+      {
+        "item": "swift_charm",
+        "weight": 12
+      },
+      {
+        "nothing": true,
+        "weight": 30
+      }
+    ]
+  }
+}

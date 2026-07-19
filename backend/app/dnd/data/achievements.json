@@ -1,0 +1,297 @@
+{
+  "categories": [
+    "Combat",
+    "Progression",
+    "The Abyss",
+    "Wealth",
+    "Crafting",
+    "Collection",
+    "Social"
+  ],
+  "achievements": [
+    {
+      "id": "first_blood",
+      "name": "First Blood",
+      "description": "Slay your first monster.",
+      "category": "Combat",
+      "emoji": "🩸",
+      "metric": "monsters_killed",
+      "threshold": 1
+    },
+    {
+      "id": "slayer_1",
+      "name": "Monster Slayer",
+      "description": "Slay 100 monsters.",
+      "category": "Combat",
+      "emoji": "⚔️",
+      "metric": "monsters_killed",
+      "threshold": 100
+    },
+    {
+      "id": "slayer_2",
+      "name": "Seasoned Slayer",
+      "description": "Slay 1,000 monsters.",
+      "category": "Combat",
+      "emoji": "⚔️",
+      "metric": "monsters_killed",
+      "threshold": 1000,
+      "title": "the Slayer"
+    },
+    {
+      "id": "slayer_3",
+      "name": "Harbinger of Death",
+      "description": "Slay 5,000 monsters.",
+      "category": "Combat",
+      "emoji": "💀",
+      "metric": "monsters_killed",
+      "threshold": 5000,
+      "title": "the Butcher"
+    },
+    {
+      "id": "elite_1",
+      "name": "Elite Hunter",
+      "description": "Slay 10 elite monsters.",
+      "category": "Combat",
+      "emoji": "🌟",
+      "metric": "elites_slain",
+      "threshold": 10
+    },
+    {
+      "id": "elite_2",
+      "name": "Elite Bane",
+      "description": "Slay 100 elite monsters.",
+      "category": "Combat",
+      "emoji": "🌟",
+      "metric": "elites_slain",
+      "threshold": 100,
+      "title": "Elite Hunter"
+    },
+    {
+      "id": "apex_1",
+      "name": "Giant Slayer",
+      "description": "Slay your first apex foe.",
+      "category": "Combat",
+      "emoji": "🐉",
+      "metric": "apex_slain",
+      "threshold": 1
+    },
+    {
+      "id": "apex_2",
+      "name": "Apex Predator",
+      "description": "Slay 25 apex foes.",
+      "category": "Combat",
+      "emoji": "🐉",
+      "metric": "apex_slain",
+      "threshold": 25,
+      "title": "Apex Predator"
+    },
+    {
+      "id": "level_5",
+      "name": "Adventurer",
+      "description": "Reach level 5.",
+      "category": "Progression",
+      "emoji": "🌟",
+      "metric": "level",
+      "threshold": 5
+    },
+    {
+      "id": "level_10",
+      "name": "Veteran",
+      "description": "Reach level 10.",
+      "category": "Progression",
+      "emoji": "🌟",
+      "metric": "level",
+      "threshold": 10
+    },
+    {
+      "id": "level_15",
+      "name": "Champion",
+      "description": "Reach level 15.",
+      "category": "Progression",
+      "emoji": "🌟",
+      "metric": "level",
+      "threshold": 15
+    },
+    {
+      "id": "level_20",
+      "name": "Ascended",
+      "description": "Reach the level cap of 20.",
+      "category": "Progression",
+      "emoji": "👑",
+      "metric": "level",
+      "threshold": 20,
+      "title": "the Ascended"
+    },
+    {
+      "id": "abyss_5",
+      "name": "Descender",
+      "description": "Reach Abyss floor 5.",
+      "category": "The Abyss",
+      "emoji": "🕳️",
+      "metric": "abyss_best_floor",
+      "threshold": 5
+    },
+    {
+      "id": "abyss_10",
+      "name": "Delver",
+      "description": "Reach Abyss floor 10.",
+      "category": "The Abyss",
+      "emoji": "🕳️",
+      "metric": "abyss_best_floor",
+      "threshold": 10
+    },
+    {
+      "id": "abyss_20",
+      "name": "Abysswalker",
+      "description": "Reach Abyss floor 20.",
+      "category": "The Abyss",
+      "emoji": "🕳️",
+      "metric": "abyss_best_floor",
+      "threshold": 20,
+      "title": "Abysswalker"
+    },
+    {
+      "id": "abyss_30",
+      "name": "Voidtouched",
+      "description": "Reach Abyss floor 30.",
+      "category": "The Abyss",
+      "emoji": "🌑",
+      "metric": "abyss_best_floor",
+      "threshold": 30,
+      "title": "the Voidtouched"
+    },
+    {
+      "id": "gold_1k",
+      "name": "Coin Collector",
+      "description": "Earn 1,000 gold from exploring.",
+      "category": "Wealth",
+      "emoji": "🪙",
+      "metric": "gold_earned",
+      "threshold": 1000
+    },
+    {
+      "id": "gold_10k",
+      "name": "Treasure Hunter",
+      "description": "Earn 10,000 gold over your career.",
+      "category": "Wealth",
+      "emoji": "🪙",
+      "metric": "gold_earned",
+      "threshold": 10000
+    },
+    {
+      "id": "gold_100k",
+      "name": "Tycoon",
+      "description": "Earn 100,000 gold over your career.",
+      "category": "Wealth",
+      "emoji": "💰",
+      "metric": "gold_earned",
+      "threshold": 100000,
+      "title": "the Wealthy"
+    },
+    {
+      "id": "smith_1",
+      "name": "Apprentice Smith",
+      "description": "Forge your first piece of gear.",
+      "category": "Crafting",
+      "emoji": "🔨",
+      "metric": "gear_forged",
+      "threshold": 1
+    },
+    {
+      "id": "smith_2",
+      "name": "Master Artificer",
+      "description": "Forge 25 pieces of gear.",
+      "category": "Crafting",
+      "emoji": "🔨",
+      "metric": "gear_forged",
+      "threshold": 25,
+      "title": "the Artificer"
+    },
+    {
+      "id": "enchanter",
+      "name": "Arcane Enchanter",
+      "description": "Enchant gear 50 times.",
+      "category": "Crafting",
+      "emoji": "✨",
+      "metric": "gear_enchanted",
+      "threshold": 50,
+      "title": "the Enchanter"
+    },
+    {
+      "id": "salvager",
+      "name": "Scrap Baron",
+      "description": "Salvage 100 pieces of gear.",
+      "category": "Crafting",
+      "emoji": "♻️",
+      "metric": "gear_salvaged",
+      "threshold": 100
+    },
+    {
+      "id": "naturalist_1",
+      "name": "Field Researcher",
+      "description": "Discover 10 kinds of monster.",
+      "category": "Collection",
+      "emoji": "📖",
+      "metric": "bestiary",
+      "threshold": 10
+    },
+    {
+      "id": "naturalist_2",
+      "name": "Naturalist",
+      "description": "Discover 25 kinds of monster.",
+      "category": "Collection",
+      "emoji": "📖",
+      "metric": "bestiary",
+      "threshold": 25,
+      "title": "the Naturalist"
+    },
+    {
+      "id": "legend_bearer",
+      "name": "Legend-Bearer",
+      "description": "Own a legendary item.",
+      "category": "Collection",
+      "emoji": "🟠",
+      "metric": "legendary_count",
+      "threshold": 1,
+      "title": "Legend-Bearer"
+    },
+    {
+      "id": "hoarder",
+      "name": "Gear Hoarder",
+      "description": "Hold 25 affixed items at once.",
+      "category": "Collection",
+      "emoji": "🧳",
+      "metric": "gear_count",
+      "threshold": 25
+    },
+    {
+      "id": "duelist_1",
+      "name": "First Duel",
+      "description": "Win your first duel.",
+      "category": "Social",
+      "emoji": "🤝",
+      "metric": "duel_wins",
+      "threshold": 1
+    },
+    {
+      "id": "duelist_2",
+      "name": "Arena Champion",
+      "description": "Win 25 duels.",
+      "category": "Social",
+      "emoji": "🏆",
+      "metric": "duel_wins",
+      "threshold": 25,
+      "title": "the Champion"
+    },
+    {
+      "id": "devoted",
+      "name": "Devoted",
+      "description": "Reach a 14-day login streak.",
+      "category": "Social",
+      "emoji": "🔥",
+      "metric": "daily_streak",
+      "threshold": 14,
+      "title": "the Devoted"
+    }
+  ]
+}
