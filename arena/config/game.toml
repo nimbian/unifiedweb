@@ -1,0 +1,554 @@
+# D&D Arena — hot-reloadable game config.
+# Timings, XP tables, class coefficients, and asset lists live here, never in code.
+# The server watches this file's mtime and reloads on change (balance tweaks
+# must not require a code deploy).
+
+[timings]
+# Round state machine: INTERMISSION -> ROSTER_LOCK -> COMBAT -> RESULTS -> ...
+intermission_seconds = 10
+roster_lock_seconds  = 10
+combat_seconds       = 90   # R2 round shape (PLAN.md §13.1): 90s of combat
+results_seconds      = 20
+
+[arena]
+# The arena boots CLOSED (idle, no rounds) until a mod types !start; !close idles
+# it again after the current round finishes (the queue is preserved). Set true for
+# dev so rounds start on launch. Boot default only — hot-reloading this key does
+# not open/close a running arena; mods control that in chat.
+open_on_launch = false
+
+[round]
+fighters_per_round = 8    # R2: 8 slots (0-7); NPCs fill empties. Fair win share = 12.5%
+roster_limit       = 3    # living characters per Twitch user
+lifespan_battles   = 25   # forced retirement after this many battles
+event_chance       = 0.35 # chance a round rolls a random arena event (Phase 3); 0 disables
+
+[queue]
+# How the next round's fighters are chosen from the queue (PLAN.md §13.1).
+# "fifo" is the shipped model (first-in-first-out with carryover). "weighted_lottery"
+# is R2: EventSub priority tokens seat first, then a server-side lottery fills the
+# rest with weight = 1 + misses * miss_weight, so repeatedly-skipped characters
+# climb toward a guaranteed seat. Additive behind this flag — keep "fifo" until the
+# R-migration lands. (R2's 90 s / 8-slot round shape IS live — see [timings] and
+# [round] above; coeffs + bands were re-tuned around the 12.5% fair share.)
+selection   = "fifo"
+miss_weight = 1.0
+
+[stats]
+# Per stat: roll 4d6, reroll any die < reroll_below (i.e. 1s) until >= it,
+# drop the lowest die, sum the top `keep`. Yields 6..18, skewed high.
+dice          = 4
+sides         = 6
+keep          = 3
+reroll_below  = 2
+
+[damage]
+# damage = round(coeff * ((PS * mult) + SS))
+#   Natural 1  -> MISS (0 damage)
+#   Natural 20 -> CRIT: round(coeff * ((PS * crit_primary_mult) + SS) * crit_final_mult)
+# The table below covers RAW d20 rolls 2..19 only (18 entries); rolls 1 and 20
+# are handled specially above. roll_multipliers[roll - 2] is the lookup.
+roll_multipliers = [0.5, 0.7, 0.7, 0.8, 0.8, 0.9, 0.9, 1.0, 1.0, 1.0, 1.1, 1.1, 1.3, 1.3, 1.6, 1.6, 1.8, 1.8]
+crit_primary_mult = 2.0
+crit_final_mult   = 2.0
+# Damage accumulates internally as floats; this ×N scale is applied and rounded
+# only at display/persistence boundaries (PLAN.md §4.4.5). ×10 puts per-hit
+# numbers in the ~80-400 range and removes the per-hit integer-rounding bias.
+display_scale     = 10.0
+
+# --- Combat model (R1, docs/R1_combat_math.md) ---
+# engine selects the combat math: "classic" is the shipped multiplier-table
+# formula above (hard rule #7); "moore" is the MooreDnD Core-Stats / to-hit-vs-AC
+# model. New engine lands behind this switch — keep "classic" until the moore
+# balance gate is green (python -m server.sim --engine moore), then flip.
+[combat]
+engine            = "classic"
+ap_per_point      = 25       # Attack Power = ability * this * class coeff
+ap_cap            = 1000
+crit_pp_per_point = 5         # crit damage % = 100 + this * crit ability
+# DEVIATION from the MooreDnD doc's +/-75: the doc value can't satisfy the 9.5-10.5%
+# balance gate (leaves a ~3pp win-rate spread that coeff-tuning can't close, because
+# with equal means the max-of-10 winner is decided by variance and slow low-hit-count
+# classes are crit-lumpier). Flat variance ~x N counters that (see R1 tuning notes);
+# 150 lets all 13 classes land in band. Owner-flagged; revert to 75 if you'd rather
+# accept a wider damage-race band. Only affects the moore engine.
+damage_variance   = 150       # per-hit +/- flat variance (moore-balanced; doc says 75)
+health_base       = 100       # Health = health_base + CON * health_per_con (R4-tuned)
+health_per_con    = 25
+loot_base         = 0         # Loot Bonus % = loot_base + CHA * loot_per_cha (R5-tuned:
+loot_per_cha      = 0.15      #   ~1.5% at CHA 10 -> a mid item (~1200g) in ~5 rounds;
+                              #   CHA classes (bard/sorcerer) earn ~2x, the money stat)
+dummy_ac          = 5         # low so damage-race hits are near-automatic (R1 §3)
+min_hit           = 1         # floor for a landed hit's raw damage
+
+# --- Monster battles (R4, docs/R4_R6_plan.md) ---
+# Every every_n rounds is a co-op tiered monster battle on an escalating ladder
+# (tier climbs on team victory, resets to I on defeat). every_n = 0 DISABLES them
+# (the shipped default). When enabled, [combat].engine must be "moore" (monsters
+# need Health/AC/to-hit). HP is a fraction of the team's expected 90s damage output,
+# so it scales with the roster's level/class mix.
+#
+# Tier stat blocks below are sim-tuned PROPOSALS (python -m server.sim --monsters),
+# not final — owner ratifies from a live/report review. They hit the win-rate targets
+# at level 10 (I..V team win% ~= 98/88/72/56/41; targets 95/85/70/55/40). CAVEAT: HP
+# scales with the team's *nominal* output but not its hit rate, so lower-level teams
+# (lower hit rate) face effectively harder monsters — live win rates on mixed-level
+# teams run below these level-10 references; nudge hp_pct_of_team down for a buffer if
+# needed. KO counts (0.3..1.4 by tier) rise with tier but are gentle by design: the
+# damage needed to hit "~half the team KO'd" triggers a random-targeting cascade that
+# collapses the win-rate ladder, so win rate (the primary lethality signal) is tuned
+# first and damage kept moderate. AC/attack_mod/interval are held flat across tiers so
+# HP alone drives the win ladder (see docs/R4_R6_plan.md).
+[monsters]
+every_n          = 0          # 0 = disabled; proposal when live: 4
+target_selection = "random"   # random | aggro_top
+max_tier         = 5
+
+# gold_mult is the R5 tier payout multiplier (§13.1: I..V = 1.0/1.5/2.0/2.5/3.0).
+[monsters.tiers.1]
+label = "Giant Rat"
+hp_pct_of_team = 0.75
+ac = 13
+attack_mod = 4
+attack_interval = 2.9
+damage = 45
+gold_mult = 1.0
+[monsters.tiers.2]
+label = "Gnoll Pack"
+hp_pct_of_team = 0.79
+ac = 13
+attack_mod = 4
+attack_interval = 2.9
+damage = 60
+gold_mult = 1.5
+[monsters.tiers.3]
+label = "Ogre"
+hp_pct_of_team = 0.81
+ac = 13
+attack_mod = 4
+attack_interval = 2.9
+damage = 72
+gold_mult = 2.0
+[monsters.tiers.4]
+label = "Young Dragon"
+hp_pct_of_team = 0.82
+ac = 13
+attack_mod = 4
+attack_interval = 2.9
+damage = 82
+gold_mult = 2.5
+[monsters.tiers.5]
+label = "Ancient Wyrm"
+hp_pct_of_team = 0.84
+ac = 13
+attack_mod = 4
+attack_interval = 2.9
+damage = 92
+gold_mult = 3.0
+
+# --- Shop + performance-gold economy (R5, docs/R4_R6_plan.md) ---
+# enabled = false (default) keeps chat betting + the presence stipend. Enabling it
+# turns on performance gold (damage x Loot Bonus% x tier mult), lets players buy
+# equipment (permanent until the character retires; gold persists on the user), and
+# retires betting + the stipend. Gear is applied to combat but the balance gate stays
+# NAKED — [shop.caps] bounds a fully geared character so classes can't leave band.
+# Catalog below is an Opus PROPOSAL, ratified from `python -m server.sim --economy`.
+[shop]
+enabled = false
+
+[shop.caps]            # full-gear ceilings; validated at load (best item per slot summed)
+max_ap_mult   = 0.08   # keeps full-gear DPS under ~+13% (docs/R4_R6_plan.md)
+max_speed_mult = 0.05
+max_ac_bonus  = 2
+max_crit_pp   = 20.0
+max_loot_pp   = 5.0    # loot% base is tiny (~1.5-3), so a few pp meaningfully boosts gold
+
+# Weapons grant Attack Power + Critical Damage.
+[shop.items.iron_sword]
+slot = "weapon"
+name = "Iron Sword"
+price = 500
+ap_mult = 0.025
+crit_pp = 2
+[shop.items.steel_sword]
+slot = "weapon"
+name = "Steel Sword"
+price = 1200
+ap_mult = 0.045
+crit_pp = 5
+[shop.items.mithril_blade]
+slot = "weapon"
+name = "Mithril Blade"
+price = 2500
+ap_mult = 0.06
+crit_pp = 8
+
+# Armor grants Armor Class (matters vs monsters, R4).
+[shop.items.leather_armor]
+slot = "armor"
+name = "Leather Armor"
+price = 400
+ac_bonus = 1
+[shop.items.chain_mail]
+slot = "armor"
+name = "Chain Mail"
+price = 1100
+ac_bonus = 1
+[shop.items.plate_armor]
+slot = "armor"
+name = "Plate Armor"
+price = 2200
+ac_bonus = 2
+
+# Trinkets grant Loot Bonus (more gold) + a little speed / power.
+[shop.items.lucky_coin]
+slot = "trinket"
+name = "Lucky Coin"
+price = 400
+loot_pp = 2.5
+[shop.items.swift_charm]
+slot = "trinket"
+name = "Swift Charm"
+price = 1000
+speed_mult = 0.03
+loot_pp = 1.0
+[shop.items.power_ring]
+slot = "trinket"
+name = "Ring of Power"
+price = 2200
+ap_mult = 0.02
+loot_pp = 1.5
+speed_mult = 0.02
+
+[xp]
+# Leveling model (PLAN.md §13.1, R-migration). "placement" is the shipped model
+# (placement XP on the triangular curve below). "per_battle" is R3: every
+# completed battle grants exactly 1 level, capped at levels_max; placement XP,
+# the curve, and xp-multiplier passives/events (Gnome +5%, Crowd +25%) retire.
+# Additive behind this flag (like [combat].engine) — keep "placement" until you
+# flip to the moore engine. When flipping to "per_battle", also set levels_max
+# = 20 (the R3 cap); veteran-battle count past 20 is still owner-gated (§13.4).
+mode                  = "placement"
+levels_max            = 10
+base_per_round        = 100
+# Bonus by placement, index 0 = 1st. Placements past the list get 0.
+placement_bonus       = [150, 100, 60, 30, 30]
+# Cumulative XP to reach level N (from level 1) = curve_coeff * (N-1) * N / 2.
+# Triangular curve; level 1 = 0 XP, level 10 = 4500 XP. Average character
+# retires around level 7-9 over a 25-battle lifespan.
+curve_coeff           = 100
+per_level_primary_bonus = 1
+
+# --- Classes (13: 8 launch classes + 5 Phase 2 additions below) ---
+# primary / secondary are stat names; attack_interval in seconds; coeff is the
+# per-class damage coefficient that normalizes DPS AND win rate across the
+# different attack cadences (tuned by the simulator, see server/sim.py --tune).
+# Wizard's primary is WIS by design — do NOT change it to INT.
+
+[classes.barbarian]
+primary = "STR"
+secondary = "CON"
+attack_interval = 4.0
+coeff = 1.0004
+moore_coeff = 1.011
+
+[classes.fighter]
+primary = "STR"
+secondary = "DEX"
+attack_interval = 3.0
+coeff = 0.7782
+moore_coeff = 0.7741
+
+[classes.rogue]
+primary = "DEX"
+secondary = "CHA"
+attack_interval = 2.0
+coeff = 0.5159
+moore_coeff = 0.5158
+
+[classes.monk]
+primary = "DEX"
+secondary = "STR"
+attack_interval = 1.5
+coeff = 0.3831
+moore_coeff = 0.3778
+
+[classes.paladin]
+primary = "STR"
+secondary = "INT"
+attack_interval = 3.5
+coeff = 0.8421
+moore_coeff = 0.8343
+
+[classes.ranger]
+primary = "DEX"
+secondary = "INT"
+attack_interval = 2.5
+coeff = 0.6252
+moore_coeff = 0.6214
+
+[classes.warlock]
+primary = "INT"
+secondary = "CON"
+attack_interval = 4.0
+coeff = 1.0126
+moore_coeff = 1.0212
+
+[classes.wizard]
+primary = "WIS"
+secondary = "INT"
+attack_interval = 5.0
+coeff = 1.1462
+moore_coeff = 1.1435
+
+# Phase 2 classes (PLAN.md §4.2): primary/secondary are per spec; attack intervals
+# and signature abilities are designed to fit each archetype (coeffs tuned by the
+# simulator, so the interval only shapes cadence/feel, not power).
+[classes.cleric]
+primary = "STR"
+secondary = "WIS"
+attack_interval = 3.5
+coeff = 0.8995
+moore_coeff = 0.8994
+
+[classes.bard]
+primary = "CHA"
+secondary = "DEX"
+attack_interval = 2.5
+coeff = 0.6322
+moore_coeff = 0.6407
+
+[classes.artificer]
+primary = "INT"
+secondary = "DEX"
+attack_interval = 3.0
+coeff = 0.7335
+moore_coeff = 0.7258
+
+[classes.druid]
+primary = "WIS"
+secondary = "CON"
+attack_interval = 4.0
+coeff = 1.0094
+moore_coeff = 1.0174
+
+[classes.sorcerer]
+primary = "CHA"
+secondary = "CON"
+attack_interval = 4.5
+coeff = 1.0222
+moore_coeff = 1.0237
+
+# --- Chat betting economy (PLAN.md §6.6) ---
+# Free virtual "gold" only (never channel points / real currency). Viewers earn
+# gold_per_round just for being present in chat, then !bet it on a fighter during
+# ROSTER_LOCK. Payouts are pari-mutuel: winners split the round's pool in
+# proportion to their stake; rake is the house take (0.0 = full pool to winners).
+[economy]
+starting_gold  = 100
+gold_per_round = 10
+min_bet        = 1
+rake           = 0.0
+
+# --- Twitch EventSub rewards (PLAN.md §6.2) ---
+# Channel-point redemptions map (by reward title) to a game action; support
+# events (subs/bits) grant gold = tier_value * gold_per_tier. Rename the titles
+# to match the rewards you create in your Twitch dashboard.
+[rewards]
+gold_per_tier = 5
+
+[rewards.titles]
+"Extra Character Slot" = "extra_slot"
+"Stat Reroll" = "stat_reroll"
+"Priority Queue Token" = "priority_queue"
+
+# --- Signature abilities (PLAN.md §4.2) ---
+# Auto-cast once per round at a random mid-round moment; a "big animation" plays
+# on the overlay. Four kinds cover all eight: damage_buff (timed), no_miss /
+# crit_buff (counters), burst (instant flourish of `hits` x `hit_mult` avg hits).
+# Balance-critical: re-tune class coeffs after any change (python -m server.sim).
+[abilities.barbarian]
+name = "Rage"
+kind = "damage_buff"
+magnitude = 0.40                         # +40% damage...
+duration = 10.0                          # ...for 10s
+
+[abilities.fighter]
+name = "Second Wind"
+kind = "no_miss"
+count = 3                                # next 3 swings can't miss
+
+[abilities.rogue]
+name = "Backstab"
+kind = "crit_buff"
+count = 1                                # next hit...
+magnitude = 0.50                         # ...+50% crit chance
+
+[abilities.monk]
+name = "Flurry"
+kind = "burst"
+hits = 5                                 # 5 rapid attacks...
+hit_mult = 0.40                          # ...at 40% each
+
+[abilities.paladin]
+name = "Smite"
+kind = "burst"
+hits = 1                                 # one attack...
+hit_mult = 3.0                           # ...at 3x
+
+[abilities.ranger]
+name = "Volley"
+kind = "burst"
+hits = 3                                 # 3 arrows...
+hit_mult = 0.60                          # ...at 60% each
+
+[abilities.warlock]
+name = "Curse"
+kind = "damage_buff"
+magnitude = 0.20                         # +20% damage dealt...
+duration = 15.0                          # ...for 15s
+
+[abilities.wizard]
+name = "Fireball"
+kind = "burst"
+hits = 1                                 # one massive hit...
+hit_mult = 2.5                           # ...at 2.5x, with a screen flash
+
+# Phase 2 class abilities (designed to fit archetype; balance via the tuner).
+[abilities.cleric]
+name = "Bless"
+kind = "damage_buff"
+magnitude = 0.25                         # +25% damage...
+duration = 12.0                          # ...for 12s (steady support buff)
+
+[abilities.bard]
+name = "Inspiration"
+kind = "crit_buff"
+count = 2                                # next 2 hits...
+magnitude = 0.35                         # ...+35% crit chance
+
+[abilities.artificer]
+name = "Turret Volley"
+kind = "burst"
+hits = 4                                 # 4 rapid turret shots...
+hit_mult = 0.55                          # ...at 55% each
+
+[abilities.druid]
+name = "Wild Shape"
+kind = "damage_buff"
+magnitude = 0.45                         # +45% damage (beast form)...
+duration = 8.0                           # ...for 8s (big but brief)
+
+[abilities.sorcerer]
+name = "Chaos Bolt"
+kind = "burst"
+hits = 2                                 # a bolt that leaps once...
+hit_mult = 1.4                           # ...2 hits at 140% each
+
+# --- Races and passives (PLAN.md §4.3) ---
+# Chosen (not rolled) at creation; race is flavor + one small passive (<= ~5%
+# expected DPS), tuned by the simulator. Every knob defaults to a no-op, so a
+# race lists only what it changes. Event-conditional passives (Tiefling/Aasimar
+# event bonus, Dwarf curse immunity) stay inert until arena events + Curse land.
+[races.human]
+all_stats_bonus = 1                      # +1 to every stat at creation
+damage_mult = 0.985                      # normalizer: +1-all is worth +6.4% DPS raw
+                                         # (integer bonus, can't trim); nets ~+4.9%
+
+[races.elf]
+crit_chance_bonus = 0.03                 # +3% chance to upgrade a hit to a crit
+
+[races.dwarf]
+con_bonus = 2                            # +2 CON at creation
+curse_immune = true                      # immune to Curse-type debuffs (inert now)
+
+[races.orc]
+first_hit_mult = 1.9                     # first swing of the round deals 1.9x
+                                         # (was spec 2.0 = +5.2% DPS; 1.9 -> ~+4.7%)
+
+[races.halfling]
+lucky_reroll_ones = 1                    # reroll the first natural 1 each round
+
+[races.tiefling]
+event_damage_bonus = 0.05                # +5% dmg during matching events (inert now)
+event_tags = ["fire", "blood_moon"]
+
+[races.dragonborn]
+breath_every = 10                        # every 10th swing adds a breath bonus...
+breath_bonus_mult = 0.5                  # ...worth ~0.5 of an average hit
+
+[races.gnome]
+xp_mult = 1.05                           # +5% XP earned (no DPS impact)
+
+[races.goblin]
+attack_speed_mult = 1.10                 # +10% attack speed...
+damage_mult = 0.95                       # ...-5% damage per hit
+
+[races.aasimar]
+event_damage_bonus = 0.05                # +5% dmg during Blessing events
+event_tags = ["blessing"]
+
+# --- Random arena events (PLAN.md §4.6, Phase 3) ---
+# One GLOBAL round modifier, rolled at round start with probability
+# [round].event_chance and applied to every fighter. Owner standard (2026-07-05):
+# every event is a flat damage bonus/penalty at one of two tiers —
+# MINOR = +/-5%, MAJOR = +/-10%. A uniform multiplier is win-rate-neutral on its
+# own; the balance effect comes through the matching race passive
+# (Tiefling/Aasimar event_damage_bonus, Dwarf curse_immune) — which is what
+# activates those otherwise-inert passives (§4.3). Engine-agnostic: the same flat
+# damage_mult applies under both the classic and moore combat engines.
+# (The crit_* / no_miss / xp_mult knobs still exist for future events but are
+# unused by this set.) Re-run `python -m server.sim --rounds 100000 --events`
+# after any change.
+[events.fire]
+label = "Fire Storm"                     # MAJOR boon; Tiefling +5% via event_tags
+tag = "fire"
+damage_mult = 1.10                       # +10% damage to all
+
+[events.blessing]
+label = "Blessing"                       # MINOR boon; Aasimar +5% via event_tags
+tag = "blessing"
+damage_mult = 1.05                       # +5% damage to all
+
+[events.crowd]
+label = "Roaring Crowd"                  # MINOR boon
+damage_mult = 1.05                       # +5% damage to all (the crowd spurs everyone on)
+
+[events.curse]
+label = "Curse"                          # MAJOR bane; Dwarf is immune (curse_immune)
+curse = true
+damage_mult = 0.90                       # -10% damage to all (except Dwarves)
+
+[events.fog]
+label = "Fog"                            # MAJOR bane
+damage_mult = 0.90                       # -10% damage to all
+
+[events.blood_moon]
+label = "Blood Moon"                     # MAJOR bane; Tiefling resists +5% via event_tags
+tag = "blood_moon"
+damage_mult = 0.90                       # -10% damage to all (fiends endure it better)
+
+[events.rain]
+label = "Rain"                           # MINOR bane
+damage_mult = 0.95                       # -5% damage to all
+
+# --- Asset lists (renderer-facing; server picks, Godot renders) ---
+# Populated as the LPC layer sets land. Server selects randomly, server-side.
+[assets]
+backgrounds = ["castle_courtyard", "dungeon", "forest_clearing", "arena_pit"]
+dummy_sprites = ["dummy_01", "dummy_02", "dummy_03", "dummy_04"]
+
+[assets.sprite_sets]
+barbarian = ["barb_01", "barb_02"]
+fighter   = ["fighter_01", "fighter_02"]
+rogue     = ["rogue_01", "rogue_02"]
+monk      = ["monk_01", "monk_02"]
+paladin   = ["paladin_01", "paladin_02"]
+ranger    = ["ranger_01", "ranger_02"]
+warlock   = ["warlock_01", "warlock_02"]
+wizard    = ["wizard_01", "wizard_02"]
+cleric    = ["cleric_01", "cleric_02"]
+bard      = ["bard_01", "bard_02"]
+artificer = ["artificer_01", "artificer_02"]
+druid     = ["druid_01", "druid_02"]
+sorcerer  = ["sorcerer_01", "sorcerer_02"]

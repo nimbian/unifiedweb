@@ -1,0 +1,27 @@
+# Local Postgres for D&D Arena. The game server runs on the host (or add it as
+# another service later); this just provides the database for dev/stream use.
+#
+#   docker compose up -d
+#   python -m server.migrate      # apply db/migrations against $DATABASE_URL
+#
+# Matches the default DATABASE_URL in .env.example.
+services:
+  db:
+    image: postgres:15
+    container_name: dndarena-db
+    environment:
+      POSTGRES_USER: dndarena
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: dndarena
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dndarena -d dndarena"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

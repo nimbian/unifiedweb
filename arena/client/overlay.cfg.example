@@ -1,0 +1,16 @@
+; D&D Arena overlay — remote server config.
+; Copy to overlay.cfg (same folder, gitignored) and fill in. Without this file
+; the overlay connects to ws://127.0.0.1:8765/ws with no token (local dev).
+; The file may also live at user://overlay.cfg (Godot user data dir); that
+; location wins when both exist.
+
+[server]
+; Public wss:// endpoint (the Apache reverse proxy — see README
+; "Remote deployment"). Plain ws:// works for LAN/local testing.
+url = "wss://arena.example.com/ws"
+
+; Shared secret; must match WS_AUTH_TOKEN in the server's .env.
+token = "paste-the-token-here"
+
+; true skips TLS certificate verification — ONLY for self-signed dev certs.
+insecure_tls = false

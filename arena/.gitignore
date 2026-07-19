@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# Secrets / local env
+.env
+.env.local
+client/overlay.cfg
+# twitchio cached OAuth tokens
+.tio.tokens.json
+# JWT key material (portal public key lives on disk, referenced from .env)
+*.pem
+keys/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Claude Code local settings (machine-specific)
+.claude/settings.local.json
+
+# Godot
+client/.godot/
+client/.import/
+client/export_presets.cfg
+*.translation
+
+# DB / backups
+*.sql.bak
+pgdata/
+backups/
+
+# Sim output
+sim_out/
+*.sim.json
