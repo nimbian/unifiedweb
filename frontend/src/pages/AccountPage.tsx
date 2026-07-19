@@ -1,12 +1,14 @@
-// Account page: manage connected sign-in providers. Discord is the primary
-// account and is always connected; YouTube (Google) and Twitch can be linked or
-// disconnected here. Once linked, a provider can be used to sign in.
+// Account page: manage connected sign-in providers. Any of Discord, YouTube
+// (Google) and Twitch can be linked or disconnected, and any linked provider can
+// be used to sign in. A row must keep at least one connected provider (the
+// backend refuses removing the last one; the UI disables it too).
 
 import { useState } from 'react';
-import { Alert, Badge, Button, Card, Group, Loader, Stack, Text, Title } from '@mantine/core';
+import { Alert, Badge, Button, Card, Group, Loader, Stack, Text, Title, Tooltip } from '@mantine/core';
 import { IconBrandDiscord, IconBrandTwitch, IconBrandYoutube } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { authApi } from '@/api/auth';
 import { useAuth } from '@/hooks/useAuth';
 import type { LinkedAccounts, Provider } from '@/types';
@@ -16,12 +18,19 @@ const ROWS: {
   label: string;
   color: string;
   icon: typeof IconBrandDiscord;
-  primary?: boolean;
 }[] = [
-  { provider: 'discord', label: 'Discord', color: 'indigo', icon: IconBrandDiscord, primary: true },
+  { provider: 'discord', label: 'Discord', color: 'indigo', icon: IconBrandDiscord },
   { provider: 'google', label: 'YouTube', color: 'red', icon: IconBrandYoutube },
   { provider: 'twitch', label: 'Twitch', color: 'grape', icon: IconBrandTwitch },
 ];
+
+function messageFor(err: unknown, fallback: string): string {
+  if (axios.isAxiosError(err)) {
+    const detail = err.response?.data?.detail;
+    if (typeof detail === 'string' && detail) return detail;
+  }
+  return fallback;
+}
 
 export function AccountPage() {
   const { linkAccount, unlinkAccount } = useAuth();
@@ -33,14 +42,21 @@ export function AccountPage() {
     queryFn: authApi.links,
   });
 
+  const connectedCount = data
+    ? ROWS.filter(({ provider }) => data[provider].linked).length
+    : 0;
+
   const disconnect = async (provider: Provider) => {
     setBusy(provider);
     try {
       const updated = await unlinkAccount(provider);
       queryClient.setQueryData<LinkedAccounts>(['auth', 'links'], updated);
       notifications.show({ message: `${provider} disconnected`, color: 'gray' });
-    } catch {
-      notifications.show({ message: 'Could not disconnect. Try again.', color: 'red' });
+    } catch (err) {
+      notifications.show({
+        message: messageFor(err, 'Could not disconnect. Try again.'),
+        color: 'red',
+      });
     } finally {
       setBusy(null);
     }
@@ -50,8 +66,9 @@ export function AccountPage() {
     <Stack gap="lg" maw={620}>
       <Title order={2}>Account</Title>
       <Text c="dimmed" size="sm">
-        Connect YouTube and Twitch to your account so you can sign in with any of
-        them. Your Discord account is the primary login and can't be disconnected.
+        Connect Discord, YouTube and Twitch so you can sign in with any of them.
+        Play the Discord bot? Connect Discord to link your Satchemon profile. You
+        must keep at least one sign-in method connected.
       </Text>
 
       {isLoading ? (
@@ -60,8 +77,9 @@ export function AccountPage() {
         <Alert color="red">Failed to load your connected accounts.</Alert>
       ) : (
         <Stack gap="sm">
-          {ROWS.map(({ provider, label, color, icon: Icon, primary }) => {
+          {ROWS.map(({ provider, label, color, icon: Icon }) => {
             const link = data[provider];
+            const isLastConnected = link.linked && connectedCount <= 1;
             return (
               <Card key={provider} withBorder radius="md" p="md">
                 <Group justify="space-between" wrap="nowrap">
@@ -88,19 +106,21 @@ export function AccountPage() {
                     </div>
                   </Group>
 
-                  {primary ? (
-                    <Badge color="indigo" variant="outline">
-                      Primary
-                    </Badge>
-                  ) : link.linked ? (
-                    <Button
-                      variant="light"
-                      color="gray"
-                      loading={busy === provider}
-                      onClick={() => disconnect(provider)}
+                  {link.linked ? (
+                    <Tooltip
+                      label="Keep at least one sign-in method connected"
+                      disabled={!isLastConnected}
                     >
-                      Disconnect
-                    </Button>
+                      <Button
+                        variant="light"
+                        color="gray"
+                        loading={busy === provider}
+                        disabled={isLastConnected}
+                        onClick={() => disconnect(provider)}
+                      >
+                        Disconnect
+                      </Button>
+                    </Tooltip>
                   ) : (
                     <Button color={color} onClick={() => linkAccount(provider)}>
                       Connect

@@ -8,9 +8,10 @@
 // (The external-link glyph + VITE_*_URL fallback remain in case a tile is pointed
 // back out at a standalone site during a transition.)
 
-import { Anchor, Box, Card, Center, Group, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import { Anchor, Box, Button, Card, Center, Group, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core';
 import { IconCards, IconExternalLink, IconSwords } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Tile {
   title: string;
@@ -82,9 +83,35 @@ function GameTile({ tile }: { tile: Tile }) {
   );
 }
 
+function HomeHeader() {
+  const { isAuthenticated, user, logout } = useAuth();
+  return (
+    <Box style={{ position: 'absolute', top: 16, right: 16 }}>
+      {isAuthenticated ? (
+        <Group gap="xs" wrap="nowrap">
+          <Text size="sm" c="dimmed" visibleFrom="xs">
+            {user?.name ?? user?.did ?? 'Signed in'}
+          </Text>
+          <Button variant="subtle" size="compact-sm" component={Link} to="/account">
+            Account
+          </Button>
+          <Button variant="light" color="gray" size="compact-sm" onClick={() => logout()}>
+            Sign out
+          </Button>
+        </Group>
+      ) : (
+        <Button size="compact-sm" component={Link} to="/login">
+          Sign in
+        </Button>
+      )}
+    </Box>
+  );
+}
+
 export function HomePage() {
   return (
     <Center mih="100vh" p="md">
+      <HomeHeader />
       <Stack align="center" gap="xl" w="100%" maw={760}>
         <Stack align="center" gap={4}>
           <Title
