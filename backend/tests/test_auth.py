@@ -277,6 +277,28 @@ def test_web_first_user_blocked_from_satchemon_me(client, monkeypatch):
     assert "discord" in resp.json()["detail"].lower()
 
 
+# ── the token carries the Twitch id for the arena (PLAN §8) ───────────────────
+def test_token_carries_twitch_uid_claim(client, monkeypatch):
+    from app.core.security import decode_token
+
+    _patch_identity(monkeypatch, ProviderIdentity("twitch", "t-claim", "ClaimTv"))
+    resp = client.post("/api/auth/twitch", json={"code": "x"})
+    payload = decode_token(resp.json()["access_token"], expected_type="access")
+    assert payload["ver"] == 2
+    assert payload["twitch_uid"] == "t-claim"
+    assert payload["twitch_login"] == "ClaimTv"
+
+
+def test_token_omits_twitch_uid_without_link(client, monkeypatch):
+    # A Discord-only account carries no twitch_uid claim.
+    from app.core.security import decode_token
+
+    _patch_identity(monkeypatch, ProviderIdentity("discord", "111", "Alice"))
+    resp = client.post("/api/auth/discord", json={"code": "x"})
+    payload = decode_token(resp.json()["access_token"], expected_type="access")
+    assert "twitch_uid" not in payload
+
+
 # ── auth required ─────────────────────────────────────────────────────────────
 def test_links_requires_auth(client):
     assert client.get("/api/auth/links").status_code == 401

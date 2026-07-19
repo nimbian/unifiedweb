@@ -222,6 +222,13 @@ class AuthService:
             claims["name"] = user.name
         if user.did is not None:
             claims["did"] = str(user.did)
+        # The Twitch id (+ handle) travels in the token so the arena server can map
+        # a portal session onto its (platform='twitch', platform_user_id) user
+        # without a shared DB (PLAN §8). Only present once the user links Twitch.
+        if user.twitch_uid:
+            claims["twitch_uid"] = user.twitch_uid
+            if user.twitch_login:
+                claims["twitch_login"] = user.twitch_login
         providers = self._provider_list(user)
         if providers:
             claims["providers"] = providers
