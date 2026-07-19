@@ -1,0 +1,40 @@
+# systemd unit for the Satchemon Discord bot (fork of bot/mooreDnD-Bot).
+# Install to /etc/systemd/system/moorednd-bot.service
+#
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now moorednd-bot
+#   sudo journalctl -u moorednd-bot -f
+#
+# Unlike the API/arena this process listens on no port — it's a Discord gateway
+# client — so it is NOT behind the reverse proxy and has no health endpoint.
+# Liveness is "the process is up"; Restart=on-failure covers gateway drops.
+
+[Unit]
+Description=MooreDnD Satchemon Discord bot
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=moorednd
+Group=moorednd
+# bot.py does open('config.yml') relative to the CWD — the bot token and
+# Postgres creds live there (mode 0600, owned by moorednd; NOT committed —
+# copy config.yml.samle and fill it in).
+WorkingDirectory=/opt/moorednd/satchemon-bot
+ExecStart=/opt/moorednd/satchemon-bot/.venv/bin/python bot.py
+Restart=on-failure
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+# NOTE: bot.py has two host paths (Collections, Images near the top of the file)
+# that default to /home/bramsel/pybot/*. If you keep them under /home, either
+# relocate them under /opt/moorednd (preferred) or set ProtectHome=false here so
+# the service can read/write them. With them relocated, keep ProtectHome=true.
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -15,15 +15,18 @@ the two backends. One JWT + one refresh cookie work everywhere.
 │   ├── .env          # real secrets (0600) incl. JWT_*_KEY_PATH
 │   ├── keys/         # RS256 PEM key pair (0600; never committed)
 │   └── deploy/       # gunicorn.conf.py
-└── frontend/
-    └── dist/         # vite build output
+├── frontend/
+│   └── dist/         # vite build output
+└── satchemon-bot/    # this repo's satchemon-bot/ (Discord bot, Phase 3)
+    ├── .venv/
+    └── config.yml    # bot token + Postgres creds (0600; never committed)
 ```
 
-Only `moorednd-api` (the portal backend) is deployed here in Phase 0/1. The
-arena upstream (`/api/arena/`) is wired in the proxy now but the arena fork that
-accepts the portal JWT lands in **Phase 2** — until then that route has no
-listener (harmless: the homepage tiles link to the existing sites, and no SPA
-page calls `/api/arena` yet).
+Services: **`moorednd-api`** (portal backend, §1), the **unified SPA** (§2), the
+**arena** upstream on `/api/arena/` (Phase 2; run per `arena/README.md`), and the
+**`moorednd-bot`** Discord bot (§4, Phase 3). The bot and arena are independent
+processes — only the SPA and the portal/arena HTTP upstreams sit behind the
+reverse proxy; the bot connects out to Discord and listens on no port.
 
 ## 0. Prerequisites
 
@@ -132,7 +135,50 @@ sudo nginx -t && sudo systemctl enable --now nginx && sudo systemctl reload ngin
 
 Open the firewall: `sudo firewall-cmd --permanent --add-service=http && sudo firewall-cmd --reload`
 
-## 4. OAuth redirect URIs
+## 4. Satchemon Discord bot (Phase 3)
+
+The bot is a standalone long-running process (a Discord gateway client) — no
+port, not behind the proxy. It talks to the **satchemon** Postgres directly.
+
+```bash
+# copy the repo's satchemon-bot/ to /opt/moorednd/satchemon-bot, then:
+cd /opt/moorednd/satchemon-bot
+python3.12 -m venv .venv
+.venv/bin/pip install --upgrade pip
+.venv/bin/pip install -r requirements.txt
+
+cp config.yml.samle config.yml    # fill in bot token + Postgres creds
+chmod 600 config.yml
+```
+
+`config.yml` is the only secret (no `.env` for the bot). It carries the Discord
+bot token and the same Postgres connection the portal uses. `bot.py` also has
+two host paths near the top — `Collections` (CSV export dir) and `Images` (card
+art) — that default to `/home/bramsel/pybot/*`; point them at real dirs the
+`moorednd` user can read/write (see the `ProtectHome` note in the unit file).
+
+The Phase-3 hardening is DB-only (`createUser` is now an idempotent
+resolve-or-create) and needs no schema change — the `undid` unique constraint it
+relies on already exists. Verify the fork before enabling the service:
+
+```bash
+.venv/bin/pip install pytest
+.venv/bin/python -m pytest -q      # 4 passing (tests/test_createuser.py)
+```
+
+Service:
+
+```bash
+sudo cp deploy/moorednd-bot.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now moorednd-bot
+sudo journalctl -u moorednd-bot -f
+```
+
+To cut over from the old bot deployment, stop the old process first (only one
+bot may hold the Discord gateway connection for a given token).
+
+## 5. OAuth redirect URIs
 
 Each of the three OAuth apps (Discord, Google, Twitch) needs
 `FRONTEND_ORIGIN/auth/callback` registered as a redirect URI. Set
