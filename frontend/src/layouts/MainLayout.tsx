@@ -26,11 +26,11 @@ import { formatValue } from '@/utils/format';
 
 const NAV = [
   { to: '/satchemon', label: 'All Users', icon: IconUsers, end: true },
-  { to: '/search', label: 'Search', icon: IconSearch, end: false },
-  { to: '/leaderboard', label: 'Leaderboard', icon: IconTrophy, end: false },
+  { to: '/satchemon/search', label: 'Search', icon: IconSearch, end: false },
+  { to: '/satchemon/leaderboard', label: 'Leaderboard', icon: IconTrophy, end: false },
   // The "shop" is the system user's collection (uid 0) — cards sold back to it.
-  { to: '/shop', label: 'Shop', icon: IconShoppingCart, end: false },
-  { to: '/dnd', label: 'DnD Adventure', icon: IconSword, end: false },
+  { to: '/satchemon/shop', label: 'Shop', icon: IconShoppingCart, end: false },
+  { to: '/satchemon/progress', label: 'DnD Adventure', icon: IconSword, end: false },
 ];
 
 export function MainLayout() {
@@ -116,12 +116,12 @@ export function MainLayout() {
             <NavLink
               label="My Cards"
               leftSection={<IconCards size={18} />}
-              onClick={() => navigate(`/user/${user?.did}`)}
+              onClick={() => navigate(`/satchemon/user/${user?.did}`)}
             />
             <NavLink
               label="My Progress"
               leftSection={<IconChartBar size={18} />}
-              onClick={() => navigate(`/user/${user?.did}/progress`)}
+              onClick={() => navigate(`/satchemon/user/${user?.did}/progress`)}
             />
             <NavLink
               label="Account"

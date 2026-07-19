@@ -18,21 +18,24 @@ import { AuthCallbackPage } from '@/pages/AuthCallbackPage';
 import { AccountPage } from '@/pages/AccountPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
-// Route map (Phase 0 — MooreDnD shell):
-//   /                -> HomePage         (portal landing: Satchemon + DnD Battle tiles)
-//   /satchemon       -> UsersPage        (the Satchemon "all users" list; was "/")
-//   /user/:did       -> UserCardsPage    (/satchemon/user/<did>)
-//   /me              -> UserCardsPage    (/satchemon/mycards, protected)
-//   /search          -> SearchPage       (/satchemon/search)
-//   /leaderboard     -> LeaderboardPage  (top pulls + Perfect 30)
-//   /shop            -> UserCardsPage    (system user uid 0 — sold-back cards)
-//   /slideshow       -> SlideshowPage    (/CS)
-//   /login           -> LoginPage
-//   /auth/callback   -> AuthCallbackPage  (OAuth redirect target)
-//
-// The Satchemon pages keep their existing top-level paths for now; only the
-// landing list moved to /satchemon so "/" can host the portal homepage. Full
-// re-pathing under /satchemon/* and /dndbattle/* is Phase 2.
+// Route map (Phase 2 — unified SPA). Portal-level routes stay at the top; every
+// Satchemon page now lives under /satchemon/*, and DnD Adventure (the same
+// Discord community) lives under it at /satchemon/progress/* (PLAN §4 decision).
+//   /                          -> HomePage         (portal landing)
+//   /login                     -> LoginPage
+//   /auth/callback             -> AuthCallbackPage (OAuth redirect target)
+//   /account                   -> AccountPage      (linked-accounts management)
+//   /satchemon                 -> UsersPage        (all users)
+//   /satchemon/user/:did       -> UserCardsPage
+//   /satchemon/user/:did/progress -> ProgressPage
+//   /satchemon/me              -> UserCardsPage    (self, protected)
+//   /satchemon/search          -> SearchPage
+//   /satchemon/leaderboard     -> LeaderboardPage  (top pulls + Perfect 30)
+//   /satchemon/shop            -> UserCardsPage    (system user uid 0)
+//   /satchemon/slideshow       -> SlideshowPage    (/CS)
+//   /satchemon/progress        -> AdventurersPage  (DnD Adventure)
+//   /satchemon/progress/mine|character/:key|leaderboard|worldboss|achievements
+// dndbattle pages (/dndbattle/*) are ported in a later Phase 2 step.
 export function AppRoutes() {
   return (
     <Routes>
@@ -41,17 +44,6 @@ export function AppRoutes() {
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
       <Route element={<MainLayout />}>
-        <Route path="/satchemon" element={<UsersPage />} />
-        <Route path="/user/:did" element={<UserCardsPage />} />
-        <Route path="/user/:did/progress" element={<ProgressPage />} />
-        <Route
-          path="/me"
-          element={
-            <ProtectedRoute>
-              <UserCardsPage self />
-            </ProtectedRoute>
-          }
-        />
         <Route
           path="/account"
           element={
@@ -60,26 +52,39 @@ export function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
-        <Route path="/shop" element={<UserCardsPage shop />} />
 
-        {/* DnD Adventure section */}
-        <Route path="/dnd" element={<AdventurersPage />} />
+        {/* Satchemon */}
+        <Route path="/satchemon" element={<UsersPage />} />
+        <Route path="/satchemon/user/:did" element={<UserCardsPage />} />
+        <Route path="/satchemon/user/:did/progress" element={<ProgressPage />} />
         <Route
-          path="/dnd/mine"
+          path="/satchemon/me"
+          element={
+            <ProtectedRoute>
+              <UserCardsPage self />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/satchemon/search" element={<SearchPage />} />
+        <Route path="/satchemon/leaderboard" element={<LeaderboardPage />} />
+        <Route path="/satchemon/shop" element={<UserCardsPage shop />} />
+        <Route path="/satchemon/slideshow" element={<SlideshowPage />} />
+
+        {/* DnD Adventure — lives under Satchemon */}
+        <Route path="/satchemon/progress" element={<AdventurersPage />} />
+        <Route
+          path="/satchemon/progress/mine"
           element={
             <ProtectedRoute>
               <AdventurersPage mineOnly />
             </ProtectedRoute>
           }
         />
-        <Route path="/dnd/character/:key" element={<CharacterPage />} />
-        <Route path="/dnd/leaderboard" element={<DndLeaderboardPage />} />
-        <Route path="/dnd/worldboss" element={<WorldBossPage />} />
-        <Route path="/dnd/achievements" element={<DndAchievementsPage />} />
+        <Route path="/satchemon/progress/character/:key" element={<CharacterPage />} />
+        <Route path="/satchemon/progress/leaderboard" element={<DndLeaderboardPage />} />
+        <Route path="/satchemon/progress/worldboss" element={<WorldBossPage />} />
+        <Route path="/satchemon/progress/achievements" element={<DndAchievementsPage />} />
 
-        <Route path="/slideshow" element={<SlideshowPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -78,14 +78,14 @@ export function UsersPage() {
         onRecordsPerPageChange={setPageSize}
         sortStatus={sort}
         onSortStatusChange={setSort}
-        onRowClick={({ record }) => navigate(`/user/${record.did}`)}
+        onRowClick={({ record }) => navigate(`/satchemon/user/${record.did}`)}
         columns={[
           {
             accessor: 'name',
             title: 'User',
             sortable: true,
             render: ({ name, did }) => (
-              <Anchor onClick={() => navigate(`/user/${did}`)}>{name ?? did}</Anchor>
+              <Anchor onClick={() => navigate(`/satchemon/user/${did}`)}>{name ?? did}</Anchor>
             ),
           },
           { accessor: 'card_count', title: 'Cards', sortable: true, textAlign: 'right' },

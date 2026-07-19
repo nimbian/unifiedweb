@@ -49,7 +49,7 @@ function Board({ title, rows, fmt }: { title: string; rows: LeaderEntry[]; fmt?:
                   <Badge color={RANK_COLORS[i] ?? 'blue'}>{i + 1}</Badge>
                 </Table.Td>
                 <Table.Td>
-                  <Anchor component={Link} to={`/dnd/character/${r.key}`}>
+                  <Anchor component={Link} to={`/satchemon/progress/character/${r.key}`}>
                     {r.name}
                   </Anchor>
                   <Text component="span" c="dimmed" size="xs" ml={6}>

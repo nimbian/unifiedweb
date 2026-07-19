@@ -139,7 +139,7 @@ function ProgressContent({ did, data }: { did: string; data: UserProgress }) {
   }, [data.sets]);
 
   const openSet = (s: SetProgress) =>
-    navigate(`/user/${did}?tab=${s.category}&set=${encodeURIComponent(s.slug)}`);
+    navigate(`/satchemon/user/${did}?tab=${s.category}&set=${encodeURIComponent(s.slug)}`);
 
   const { stats } = data;
 
@@ -150,7 +150,7 @@ function ProgressContent({ did, data }: { did: string; data: UserProgress }) {
           <IconChartBar size={26} style={{ verticalAlign: 'text-bottom', marginRight: 8 }} />
           {profile?.name ?? did}'s Progress
         </Title>
-        <Anchor component={Link} to={`/user/${did}`} size="sm">
+        <Anchor component={Link} to={`/satchemon/user/${did}`} size="sm">
           View collection →
         </Anchor>
       </Group>

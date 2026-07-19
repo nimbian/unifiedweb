@@ -77,7 +77,7 @@ export function WorldBossPage() {
                     <Table.Tr key={ct.key}>
                       <Table.Td>{i + 1}</Table.Td>
                       <Table.Td>
-                        <Anchor component={Link} to={`/dnd/character/${ct.key}`}>
+                        <Anchor component={Link} to={`/satchemon/progress/character/${ct.key}`}>
                           {ct.name}
                         </Anchor>
                       </Table.Td>

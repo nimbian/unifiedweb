@@ -6,10 +6,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 const TABS = [
-  { value: '/dnd', label: 'Adventurers' },
-  { value: '/dnd/leaderboard', label: 'Leaderboard' },
-  { value: '/dnd/worldboss', label: 'World Boss' },
-  { value: '/dnd/achievements', label: 'Achievements' },
+  { value: '/satchemon/progress', label: 'Adventurers' },
+  { value: '/satchemon/progress/leaderboard', label: 'Leaderboard' },
+  { value: '/satchemon/progress/worldboss', label: 'World Boss' },
+  { value: '/satchemon/progress/achievements', label: 'Achievements' },
 ];
 
 export function DndNav() {
@@ -17,9 +17,12 @@ export function DndNav() {
   const navigate = useNavigate();
   const { user } = useAuth();
   // "My DnD Adventure" is only meaningful (and routable) when logged in.
-  const tabs = user ? [...TABS, { value: '/dnd/mine', label: 'My DnD Adventure' }] : TABS;
+  const tabs = user
+    ? [...TABS, { value: '/satchemon/progress/mine', label: 'My DnD Adventure' }]
+    : TABS;
   // The non-root tabs win by prefix (so a character sheet keeps "Adventurers" lit).
-  const active = tabs.slice(1).find((t) => loc.pathname.startsWith(t.value))?.value ?? '/dnd';
+  const active =
+    tabs.slice(1).find((t) => loc.pathname.startsWith(t.value))?.value ?? '/satchemon/progress';
 
   return (
     <>

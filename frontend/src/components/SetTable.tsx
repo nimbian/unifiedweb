@@ -107,7 +107,7 @@ export function SetTable({ records, fetching, selectable }: Props) {
                     aria-label="Find more"
                     onClick={(e) => {
                       e.stopPropagation(); // don't toggle the row's expansion
-                      navigate(`/search?name=${encodeURIComponent(name)}`);
+                      navigate(`/satchemon/search?name=${encodeURIComponent(name)}`);
                     }}
                   >
                     <IconQuestionMark size={13} />

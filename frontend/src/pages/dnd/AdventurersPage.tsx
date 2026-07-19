@@ -92,7 +92,7 @@ export function AdventurersPage({ mineOnly = false }: { mineOnly?: boolean }) {
         onRecordsPerPageChange={setPageSize}
         sortStatus={sort}
         onSortStatusChange={setSort}
-        onRowClick={({ record }) => navigate(`/dnd/character/${record.key}`)}
+        onRowClick={({ record }) => navigate(`/satchemon/progress/character/${record.key}`)}
         columns={[
           {
             accessor: 'char_name',

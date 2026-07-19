@@ -72,7 +72,7 @@ function RankingSection<T extends { user: string | null; did: string }>({
                   <Badge color={RANK_COLORS[i] ?? 'blue'}>{i + 1}</Badge>
                 </Table.Td>
                 <Table.Td>
-                  <Anchor component={Link} to={`/user/${r.did}/progress`}>
+                  <Anchor component={Link} to={`/satchemon/user/${r.did}/progress`}>
                     {r.user ?? r.did}
                   </Anchor>
                 </Table.Td>

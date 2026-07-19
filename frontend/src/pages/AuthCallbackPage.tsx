@@ -54,7 +54,9 @@ export function AuthCallbackPage() {
           navigate('/account', { replace: true });
         } else {
           notifications.show({ message: 'Signed in', color: 'green' });
-          navigate(did ? `/user/${did}` : '/', { replace: true });
+          // Discord-anchored users land on their Satchemon collection; a
+          // Twitch/Google-first (did-less) account lands on the portal home.
+          navigate(did ? `/satchemon/user/${did}` : '/', { replace: true });
         }
       })
       .catch((err) => setError(messageFor(err)));

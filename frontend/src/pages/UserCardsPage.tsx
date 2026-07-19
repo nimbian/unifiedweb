@@ -97,7 +97,7 @@ function UserCardsContent({ did, shop = false }: { did: string; shop?: boolean }
         {canSell && <RolePicker did={did} current={profile?.roleid ?? null} />}
 
         {!shop && (
-          <Anchor component={Link} to={`/user/${did}/progress`} size="sm">
+          <Anchor component={Link} to={`/satchemon/user/${did}/progress`} size="sm">
             View progress →
           </Anchor>
         )}

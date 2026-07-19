@@ -250,7 +250,7 @@ export function CharacterPage() {
   return (
     <>
       <DndNav />
-      <Anchor component={Link} to="/dnd" size="sm">
+      <Anchor component={Link} to="/satchemon/progress" size="sm">
         ← All adventurers
       </Anchor>
       {isLoading ? (
