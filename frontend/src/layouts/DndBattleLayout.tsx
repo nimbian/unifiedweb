@@ -4,14 +4,28 @@
 
 import { AppShell, Box, Burger, Button, Group, NavLink, Text, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconCrown, IconLogin, IconLogout, IconSwords, IconTrophy } from '@tabler/icons-react';
+import {
+  IconCrown,
+  IconLogin,
+  IconLogout,
+  IconShoppingBag,
+  IconSwords,
+  IconTrophy,
+  IconUsers,
+} from '@tabler/icons-react';
 import { NavLink as RouterNavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
-const NAV = [
+// Public read pages plus the shop catalog (browsable signed-out). The roster is
+// signed-in only; it's appended to the nav when authenticated.
+const PUBLIC_NAV = [
   { to: '/dndbattle', label: 'Live Arena', icon: IconSwords, end: true },
   { to: '/dndbattle/leaderboard', label: 'Leaderboard', icon: IconTrophy, end: false },
   { to: '/dndbattle/hof', label: 'Hall of Fame', icon: IconCrown, end: false },
+  { to: '/dndbattle/shop', label: 'Shop', icon: IconShoppingBag, end: false },
+];
+const AUTHED_NAV = [
+  { to: '/dndbattle/roster', label: 'My Characters', icon: IconUsers, end: false },
 ];
 
 export function DndBattleLayout() {
@@ -72,16 +86,19 @@ export function DndBattleLayout() {
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
-        {NAV.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            component={RouterNavLink}
-            to={to}
-            end={end}
-            label={label}
-            leftSection={<Icon size={18} />}
-          />
-        ))}
+        {[...PUBLIC_NAV, ...(isAuthenticated ? AUTHED_NAV : [])].map(
+          ({ to, label, icon: Icon, end }) => (
+            <NavLink
+              key={to}
+              component={RouterNavLink}
+              to={to}
+              end={end}
+              label={label}
+              leftSection={<Icon size={18} />}
+              onClick={opened ? toggle : undefined}
+            />
+          ),
+        )}
       </AppShell.Navbar>
 
       <AppShell.Main>

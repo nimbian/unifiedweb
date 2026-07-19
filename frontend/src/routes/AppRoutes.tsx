@@ -7,6 +7,9 @@ import { UsersPage } from '@/pages/UsersPage';
 import { ArenaPage } from '@/pages/dndbattle/ArenaPage';
 import { DndBattleLeaderboardPage } from '@/pages/dndbattle/DndBattleLeaderboardPage';
 import { HallOfFamePage } from '@/pages/dndbattle/HallOfFamePage';
+import { RosterPage } from '@/pages/dndbattle/RosterPage';
+import { CharacterSheetPage } from '@/pages/dndbattle/CharacterSheetPage';
+import { ShopPage } from '@/pages/dndbattle/ShopPage';
 import { UserCardsPage } from '@/pages/UserCardsPage';
 import { ProgressPage } from '@/pages/ProgressPage';
 import { SearchPage } from '@/pages/SearchPage';
@@ -39,7 +42,10 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 //   /satchemon/slideshow       -> SlideshowPage    (/CS)
 //   /satchemon/progress        -> AdventurersPage  (DnD Adventure)
 //   /satchemon/progress/mine|character/:key|leaderboard|worldboss|achievements
-// dndbattle pages (/dndbattle/*) are ported in a later Phase 2 step.
+//   /dndbattle                 -> ArenaPage        (live arena, public)
+//   /dndbattle/leaderboard|hof|shop                (public reads + shop catalog)
+//   /dndbattle/roster          -> RosterPage       (authed; Twitch-link gated)
+//   /dndbattle/character/:id   -> CharacterSheetPage (public read, owner actions)
 export function AppRoutes() {
   return (
     <Routes>
@@ -92,11 +98,17 @@ export function AppRoutes() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
 
-      {/* DnD Battle (arena) — read pages are public; authed pages come later */}
+      {/* DnD Battle (arena). Read pages + the shop catalog are public; the
+          roster/sheet/buy actions authenticate with the portal Bearer token and
+          self-gate on a 401 (see PlayGate) rather than via ProtectedRoute, so a
+          signed-in-but-Twitch-unlinked user gets the "link Twitch" prompt. */}
       <Route element={<DndBattleLayout />}>
         <Route path="/dndbattle" element={<ArenaPage />} />
         <Route path="/dndbattle/leaderboard" element={<DndBattleLeaderboardPage />} />
         <Route path="/dndbattle/hof" element={<HallOfFamePage />} />
+        <Route path="/dndbattle/shop" element={<ShopPage />} />
+        <Route path="/dndbattle/roster" element={<RosterPage />} />
+        <Route path="/dndbattle/character/:id" element={<CharacterSheetPage />} />
       </Route>
     </Routes>
   );
