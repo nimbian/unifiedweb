@@ -51,6 +51,21 @@ async def gold(ctx):
     gold = getGold(ctx.author.id)
     await ctx.respond('You have {} gold'.format(str(round(gold,3))), ephemeral=True)
 
+@bot.slash_command(name = "link", description = "Get a code to link your Discord to your MooreDnD website account")
+async def link(ctx):
+    if ctx.author.bot:
+        return
+    code, expires = createLinkCode(ctx.author.id)
+    minutes = max(1, round((expires - datetime.now(timezone.utc)).total_seconds() / 60))
+    await ctx.respond(
+        "Link your Discord to your MooreDnD website account:\n"
+        "1. Sign in at https://www.moorednd.com/account (with YouTube/Google or Twitch)\n"
+        "2. Under **Have a code from the bot?**, enter this code:\n"
+        f"```\n{code}\n```\n"
+        f"It expires in {minutes} minutes — keep it to yourself.",
+        ephemeral=True,
+    )
+
 @bot.slash_command(name = "collection", description = "See your collection or specify a user")
 async def collection(ctx, user=None):
     if ctx.author.bot:

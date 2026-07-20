@@ -1,8 +1,15 @@
 from datetime import datetime, timezone, timedelta
 import random
+import secrets
 from os import path
 from table2ascii import table2ascii as t2a, PresetStyle
 import mydb
+
+# One-time /link codes (PLAN §6). Uppercase, unambiguous alphabet (no 0/O/1/I/L),
+# short enough to type from a phone. 31**8 ~= 8.5e11 with a 15-minute TTL.
+LINK_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+LINK_CODE_LEN = 8
+LINK_CODE_TTL = timedelta(minutes=15)
 
 def getUserName(did):
     with mydb.db_cursor() as cur:
@@ -79,6 +86,33 @@ def createUser(user, did):
         cur.execute("SELECT rwid from users where did = %s",(did,))
         row = cur.fetchone()
         return row[0] if row else None
+
+def createLinkCode(did):
+    """Mint a one-time code the user redeems on the website to link this Discord.
+
+    Writes the web-app-owned ``link_codes`` table (PLAN §6) — the only portal-read
+    table this bot writes. Any earlier *unredeemed* code for the same Discord id is
+    cleared first, so ``/link`` always leaves exactly one live code outstanding
+    (already-consumed rows are kept as history). Returns ``(code, expires_at)`` for
+    the reply. The portal redeems it on ``/account`` (``POST /auth/link/redeem``),
+    attaching ``did`` to the signed-in account and stamping ``consumed_at`` so a
+    code can never be reused.
+    """
+    now = datetime.now(timezone.utc)
+    expires = now + LINK_CODE_TTL
+    with mydb.db_cursor() as cur:
+        cur.execute("DELETE from link_codes where did = %s and consumed_at is null", (did,))
+        for _ in range(5):
+            code = "".join(secrets.choice(LINK_CODE_ALPHABET) for _ in range(LINK_CODE_LEN))
+            cur.execute("SELECT 1 from link_codes where code = %s", (code,))
+            if cur.fetchone() is None:
+                cur.execute(
+                    "INSERT into link_codes(code, did, created_at, expires_at)"
+                    " values (%s,%s,%s,%s)",
+                    (code, did, now, expires),
+                )
+                return code, expires
+    raise RuntimeError("could not generate a unique link code")
 
 def getUserID(user):
     with mydb.db_cursor() as cur:
