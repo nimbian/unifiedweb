@@ -108,11 +108,14 @@ class UserRepository:
         self.db.execute(update(User).where(User.rwid == uid).values(roleid=roleid))
 
     def list_with_stats(self) -> Sequence[Row]:
-        """Was ``getAllUsers``.
+        """The "All users" standings (was ``getAllUsers``).
 
-        SELECT name, did, count(value), sum(value), gp FROM users
-            JOIN collections ON users.rwid = collections.uid
-            WHERE did > 0 GROUP BY (name, did, gp)
+        Keyed on ``users.rwid`` (the canonical account id) and restricted to
+        Discord-linked users (``did IS NOT NULL``): a web-first account has no
+        Satchemon collection, so it has no standing (PLAN §6.2). Was previously
+        ``WHERE did > 0 GROUP BY (name, did, gp)`` — the exclusion of NULL-did
+        rows is now explicit, and the key is the canonical ``rwid`` rather than an
+        incidental (name, did, gp) tuple.
         """
         stmt = (
             select(
@@ -124,8 +127,8 @@ class UserRepository:
                 func.max(Collection.date).label("last_active"),
             )
             .join(Collection, Collection.uid == User.rwid)
-            .where(User.did > 0)
-            .group_by(User.name, User.did, User.gp)
+            .where(User.did.is_not(None))
+            .group_by(User.rwid)
             .order_by(User.name.asc())
         )
         return self.db.execute(stmt).all()

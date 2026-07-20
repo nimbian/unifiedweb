@@ -21,6 +21,22 @@ def test_list_users(client):
     assert float(rows[0]["collection_value"]) == 5.0
 
 
+def test_list_users_excludes_web_first(client, db):
+    """Web-first (did NULL) accounts are absent from the standings — they have no
+    Satchemon collection, so keying on rwid + the explicit did filter drops them
+    (PLAN §6.2)."""
+    from app.models import Collection, Mon, User
+
+    db.add(User(rwid=3, name="WebFirst", did=None, gp=0))
+    db.add(Mon(rwid=91, cr="1", name="Spectre (#1)", exp="Base", class_="Monsters"))
+    db.add(Collection(rwid=901, uid=3, monid=91, grade=10, holo=1, value=1))
+    db.commit()
+
+    rows = client.get("/api/users").json()
+    assert all(r["name"] != "WebFirst" for r in rows)
+    assert len(rows) == 1  # still just the seeded Alice
+
+
 def test_last_active_surfaced(client, db):
     # The owner's most recent card date appears on both the users list and search.
     from datetime import datetime, timezone

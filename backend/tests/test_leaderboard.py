@@ -85,6 +85,27 @@ def test_leaderboard_top_collections_and_best_copy(client, db):
     assert float(best[1]["value"]) == 5.0
 
 
+def test_leaderboard_excludes_web_first_users(client, db):
+    """A web-first (did NULL) account never appears on the leaderboard, even
+    holding a would-be #1 card — Satchemon is played through the Discord bot, so
+    only Discord-linked players have standings (PLAN §6.2)."""
+    from app.models import Collection, Mon, User
+
+    now = datetime.now(timezone.utc)
+    # A Twitch/Google-first user (no Discord link) with a huge dated card.
+    db.add(User(rwid=3, name="WebFirst", did=None, gp=0))
+    db.add(Mon(rwid=90, cr="10", name="Ghost (#10)", exp="Base", class_="Monsters"))
+    db.add(Collection(rwid=900, uid=3, monid=90, grade=10, holo=1, value=99999, date=now))
+    db.commit()
+
+    body = client.get("/api/leaderboard").json()
+    # Absent from every ranking despite the top value.
+    assert all(c["name"] != "Ghost (#10)" for c in body["today"])
+    assert all(r["user"] != "WebFirst" for r in body["top_collections"])
+    assert all(r["user"] != "WebFirst" for r in body["best_copy_collections"])
+    assert all(r["user"] != "WebFirst" for r in body["pristine_hunters"])
+
+
 def test_leaderboard_pristine_hunters(client, db):
     from app.models import Collection, Mon, User
 

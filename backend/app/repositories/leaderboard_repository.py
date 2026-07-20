@@ -2,8 +2,10 @@
 
 Queries the same collections/users/mons join the rest of the app uses, but
 without the multi-set LEFT JOIN — the leaderboard wants exactly one row per
-owned card, not a row per (card, set) pair. Only real users (``users.did > 0``)
-are considered, so system-owned (sold) cards never appear.
+owned card, not a row per (card, set) pair.
+
+Standings are keyed on ``users.rwid`` (the canonical account id, PLAN §3) and
+restricted to Discord-linked players via :data:`LINKED_PLAYER` — see its note.
 """
 
 from collections.abc import Sequence
@@ -17,6 +19,15 @@ from app.models import Collection, Mon, User
 
 # A "Perfect 30" card has exactly this value.
 PERFECT_VALUE = Decimal("10000")
+
+# A user is on the leaderboard only if they have linked Discord (``did IS NOT
+# NULL``). Satchemon is played through the Discord bot, so a web-first
+# (Twitch/Google-only) account has an empty collection and no standing —
+# excluding it is intentional and explicit, not an incidental side effect of the
+# old ``did > 0`` filter (PLAN §6.2). The system "shop" pile
+# (``collections.uid = 0``) has no backing ``users`` row, so it is dropped by the
+# INNER JOIN regardless of this predicate.
+LINKED_PLAYER = User.did.is_not(None)
 
 
 class LeaderboardRepository:
@@ -41,7 +52,7 @@ class LeaderboardRepository:
             .select_from(Collection)
             .join(User, Collection.uid == User.rwid)
             .join(Mon, Collection.monid == Mon.rwid)
-            .where(User.did > 0)
+            .where(LINKED_PLAYER)
         )
 
     def top_pulled_since(self, start: datetime) -> Sequence[Row]:
@@ -50,7 +61,7 @@ class LeaderboardRepository:
             select(func.max(Collection.value))
             .select_from(Collection)
             .join(User, Collection.uid == User.rwid)
-            .where(User.did > 0, Collection.date >= start)
+            .where(LINKED_PLAYER, Collection.date >= start)
         ).scalar()
         if max_value is None:
             return []
@@ -81,8 +92,8 @@ class LeaderboardRepository:
             )
             .select_from(Collection)
             .join(User, Collection.uid == User.rwid)
-            .where(User.did > 0)
-            .group_by(User.rwid, User.name, User.did)
+            .where(LINKED_PLAYER)
+            .group_by(User.rwid)
             .order_by(func.sum(Collection.value).desc())
             .limit(limit)
         )
@@ -110,8 +121,8 @@ class LeaderboardRepository:
             )
             .select_from(per_mon)
             .join(User, per_mon.c.uid == User.rwid)
-            .where(User.did > 0)
-            .group_by(User.rwid, User.name, User.did)
+            .where(LINKED_PLAYER)
+            .group_by(User.rwid)
             .order_by(func.sum(per_mon.c.maxval).desc())
             .limit(limit)
         )
@@ -132,11 +143,11 @@ class LeaderboardRepository:
             .select_from(Collection)
             .join(User, Collection.uid == User.rwid)
             .where(
-                User.did > 0,
+                LINKED_PLAYER,
                 Collection.grade == 10,
                 func.coalesce(Collection.holo, 0) != 0,
             )
-            .group_by(User.rwid, User.name, User.did)
+            .group_by(User.rwid)
             .order_by(func.count(Collection.rwid).desc())
             .limit(limit)
         )
