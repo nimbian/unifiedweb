@@ -15,6 +15,18 @@ class OAuthCallbackRequest(BaseModel):
     code: str = Field(..., description="OAuth2 authorization code from the provider.")
 
 
+class LinkCodeRedeem(BaseModel):
+    """Payload to redeem a one-time Discord link code from the bot's ``/link`` (PLAN §6).
+
+    Unlike :class:`OAuthCallbackRequest`, this is a short human-typed code, not an
+    OAuth authorization code — the service normalizes it (strip + uppercase).
+    """
+
+    code: str = Field(
+        ..., min_length=1, max_length=16, description="Short code from the bot's /link command."
+    )
+
+
 class TokenResponse(BaseModel):
     """Access token returned to the SPA. The refresh token travels in an httpOnly cookie."""
 

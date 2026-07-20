@@ -19,6 +19,7 @@ from app.core.config import settings
 from app.core.security import TokenError
 from app.schemas.auth import (
     AuthenticatedUser,
+    LinkCodeRedeem,
     LinkedAccounts,
     OAuthCallbackRequest,
     Provider,
@@ -82,6 +83,24 @@ def me(user: CurrentUser) -> AuthenticatedUser:
 @router.get("/links", response_model=LinkedAccounts, summary="Current user's linked providers")
 def links(service: AuthServiceDep, rwid: CurrentRwid) -> LinkedAccounts:
     return service.linked_accounts(rwid)
+
+
+@router.post(
+    "/link/redeem", response_model=LinkedAccounts, summary="Redeem a bot /link code"
+)
+def link_redeem(
+    payload: LinkCodeRedeem,
+    service: AuthServiceDep,
+    rwid: CurrentRwid,
+) -> LinkedAccounts:
+    """Attach a Discord account to the caller via a one-time code from the bot's
+    ``/link`` — the OAuth-free linking path (PLAN §6)."""
+    try:
+        return service.redeem_link_code(payload.code, rwid)
+    except AuthConflict as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except AuthError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
 
 # ── Provider routes ──────────────────────────────────────────────────────────

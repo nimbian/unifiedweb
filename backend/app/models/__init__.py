@@ -13,6 +13,7 @@ from app.models.base import Base
 from app.models.collection import Collection
 from app.models.completed_set import CompletedSet
 from app.models.expansion import Expansion
+from app.models.link_code import LinkCode
 from app.models.mon import Mon
 from app.models.queue import Queue
 from app.models.set import CardInSet, Set
@@ -23,6 +24,7 @@ __all__ = [
     "Collection",
     "CompletedSet",
     "Expansion",
+    "LinkCode",
     "Mon",
     "Queue",
     "CardInSet",

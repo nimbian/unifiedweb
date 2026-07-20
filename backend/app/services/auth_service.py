@@ -25,6 +25,7 @@ self-contained (no ``sessions`` table).
 """
 
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from urllib.parse import urlencode
 
 import httpx
@@ -278,6 +279,42 @@ class AuthService:
             self.users.set_google_link(me.rwid, identity.account_id, identity.display)
         else:
             self.users.set_twitch_link(me.rwid, identity.account_id, identity.display)
+        return self.linked_accounts(current_rwid)
+
+    def redeem_link_code(self, code: str, current_rwid: int) -> LinkedAccounts:
+        """Redeem a bot-generated ``/link`` code, attaching its Discord id to the caller.
+
+        The satchemon bot's ``/link`` writes a one-time ``code -> did`` row; the
+        signed-in user types the code on ``/account`` (PLAN §6). This is the
+        OAuth-free counterpart to :meth:`link_provider` for Discord: on success the
+        code's ``did`` is set on the caller's row and the code is consumed so it can
+        never be reused. Same 409 guard as linking — if the ``did`` already belongs
+        to another row we refuse (and leave the code unconsumed so the user can
+        redeem it from the right account).
+        """
+        me = self.users.get_by_rwid(current_rwid)
+        if me is None:
+            raise AuthError("Your account is not registered.")
+
+        normalized = code.strip().upper()
+        link = self.users.get_unconsumed_link_code(normalized)
+        if link is None:
+            raise AuthError("That link code is invalid or has already been used.")
+
+        # Expiry is checked here (not in SQL) so a possibly-naive stored timestamp
+        # is normalized to UTC before comparison — dialect-safe (see the repo note).
+        expires = link.expires_at
+        if expires.tzinfo is None:
+            expires = expires.replace(tzinfo=UTC)
+        if expires < datetime.now(UTC):
+            raise AuthError("That link code has expired. Run /link again for a new one.")
+
+        existing = self.users.get_by_did(link.did)
+        if existing is not None and existing.rwid != me.rwid:
+            raise AuthConflict(self._conflict_message("discord"))
+
+        self.users.set_discord_link(me.rwid, link.did)
+        self.users.consume_link_code(normalized, datetime.now(UTC))
         return self.linked_accounts(current_rwid)
 
     def unlink_provider(self, provider: Provider, current_rwid: int) -> LinkedAccounts:

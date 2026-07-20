@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from sqlalchemy import Row, func, select, update
 from sqlalchemy.orm import Session
 
-from app.models import Collection, User
+from app.models import Collection, LinkCode, User
 
 
 class UserRepository:
@@ -82,6 +82,25 @@ class UserRepository:
     def set_twitch_link(self, rwid: int, uid: str | None, login: str | None) -> None:
         self.db.execute(
             update(User).where(User.rwid == rwid).values(twitch_uid=uid, twitch_login=login)
+        )
+
+    # ── Discord-bot link codes (PLAN §6 /link) ───────────────────────────────
+    def get_unconsumed_link_code(self, code: str) -> LinkCode | None:
+        """The link-code row for ``code`` if it exists and has not been redeemed.
+
+        The expiry check is done by the caller in Python so it is dialect-safe
+        (aware/naive timestamp normalization), not in SQL.
+        """
+        return self.db.execute(
+            select(LinkCode).where(
+                LinkCode.code == code, LinkCode.consumed_at.is_(None)
+            )
+        ).scalar_one_or_none()
+
+    def consume_link_code(self, code: str, when: datetime) -> None:
+        """Mark a code redeemed so it can never be reused."""
+        self.db.execute(
+            update(LinkCode).where(LinkCode.code == code).values(consumed_at=when)
         )
 
     def set_role(self, uid: int, roleid: int | None) -> None:

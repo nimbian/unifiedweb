@@ -34,6 +34,7 @@ MANAGED_TABLES = {
     "expansions",
     # Created and owned by the web app (unlike the rest, which pre-exist).
     "queue",
+    "link_codes",
 }
 
 

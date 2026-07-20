@@ -12,7 +12,7 @@ from jose import jwt
 from sqlalchemy import select
 
 from app.core.security import create_access_token
-from app.models import User
+from app.models import LinkCode, User
 from app.services.auth_service import AuthService, ProviderIdentity
 
 
@@ -297,6 +297,106 @@ def test_token_omits_twitch_uid_without_link(client, monkeypatch):
     resp = client.post("/api/auth/discord", json={"code": "x"})
     payload = decode_token(resp.json()["access_token"], expected_type="access")
     assert "twitch_uid" not in payload
+
+
+# ── /link code redemption (PLAN §6) ───────────────────────────────────────────
+def _seed_code(db, code: str, did: int, *, expired: bool = False, consumed: bool = False):
+    """Insert a bot ``/link`` code row and return it."""
+    now = datetime.now(UTC)
+    row = LinkCode(
+        code=code,
+        did=did,
+        created_at=now,
+        expires_at=now - timedelta(minutes=1) if expired else now + timedelta(minutes=10),
+        consumed_at=now if consumed else None,
+    )
+    db.add(row)
+    db.commit()
+    return row
+
+
+def _twitch_first(client, monkeypatch, uid: str = "t-redeem", name: str = "Redeemer"):
+    """Sign in a fresh Twitch-first (did NULL) account and return its bearer header."""
+    _patch_identity(monkeypatch, ProviderIdentity("twitch", uid, name))
+    return _hdr(client.post("/api/auth/twitch", json={"code": "x"}))
+
+
+def test_redeem_link_code_links_discord(client, db, monkeypatch):
+    headers = _twitch_first(client, monkeypatch)
+    _seed_code(db, "LINKCODE1", did=777)
+
+    resp = client.post("/api/auth/link/redeem", json={"code": "LINKCODE1"}, headers=headers)
+    assert resp.status_code == 200
+    assert resp.json()["discord"]["linked"] is True
+
+    # The did landed on the caller's row and the code is now consumed.
+    row = db.execute(select(User).where(User.did == 777)).scalar_one()
+    assert row.did == 777
+    consumed = db.execute(
+        select(LinkCode).where(LinkCode.code == "LINKCODE1")
+    ).scalar_one()
+    assert consumed.consumed_at is not None
+
+
+def test_redeem_is_case_insensitive_and_trimmed(client, db, monkeypatch):
+    headers = _twitch_first(client, monkeypatch)
+    _seed_code(db, "ABCD1234", did=778)
+
+    resp = client.post(
+        "/api/auth/link/redeem", json={"code": "  abcd1234 "}, headers=headers
+    )
+    assert resp.status_code == 200
+    assert resp.json()["discord"]["linked"] is True
+
+
+def test_redeem_code_can_only_be_used_once(client, db, monkeypatch):
+    headers = _twitch_first(client, monkeypatch)
+    _seed_code(db, "ONCECODE0", did=779)
+
+    assert client.post(
+        "/api/auth/link/redeem", json={"code": "ONCECODE0"}, headers=headers
+    ).status_code == 200
+    # Second attempt: the code is consumed -> treated as invalid.
+    resp = client.post("/api/auth/link/redeem", json={"code": "ONCECODE0"}, headers=headers)
+    assert resp.status_code == 400
+    assert "invalid or has already been used" in resp.json()["detail"]
+
+
+def test_redeem_unknown_code_400(client, monkeypatch):
+    headers = _twitch_first(client, monkeypatch)
+    resp = client.post("/api/auth/link/redeem", json={"code": "NOPE"}, headers=headers)
+    assert resp.status_code == 400
+    assert "invalid" in resp.json()["detail"].lower()
+
+
+def test_redeem_expired_code_400(client, db, monkeypatch):
+    headers = _twitch_first(client, monkeypatch)
+    _seed_code(db, "EXPIRED00", did=780, expired=True)
+
+    resp = client.post("/api/auth/link/redeem", json={"code": "EXPIRED00"}, headers=headers)
+    assert resp.status_code == 400
+    assert "expired" in resp.json()["detail"].lower()
+    # An expired code is left unconsumed (it simply won't resolve).
+    row = db.execute(select(LinkCode).where(LinkCode.code == "EXPIRED00")).scalar_one()
+    assert row.consumed_at is None
+
+
+def test_redeem_conflict_when_did_belongs_to_another_row(client, db, monkeypatch):
+    # did=111 is the seeded Alice (rwid=1). A Twitch-first user cannot claim it.
+    headers = _twitch_first(client, monkeypatch)
+    _seed_code(db, "CONFLICT0", did=111)
+
+    resp = client.post("/api/auth/link/redeem", json={"code": "CONFLICT0"}, headers=headers)
+    assert resp.status_code == 409
+    assert "Satchemon profile" in resp.json()["detail"]
+
+    # Refused, and the code is preserved so it can be redeemed from the right account.
+    row = db.execute(select(LinkCode).where(LinkCode.code == "CONFLICT0")).scalar_one()
+    assert row.consumed_at is None
+
+
+def test_redeem_requires_auth(client):
+    assert client.post("/api/auth/link/redeem", json={"code": "X"}).status_code == 401
 
 
 # ── auth required ─────────────────────────────────────────────────────────────
