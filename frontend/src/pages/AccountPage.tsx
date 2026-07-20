@@ -4,7 +4,19 @@
 // backend refuses removing the last one; the UI disables it too).
 
 import { useState } from 'react';
-import { Alert, Badge, Button, Card, Group, Loader, Stack, Text, Title, Tooltip } from '@mantine/core';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  Group,
+  Loader,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+  Tooltip,
+} from '@mantine/core';
 import { IconBrandDiscord, IconBrandTwitch, IconBrandYoutube } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -33,9 +45,11 @@ function messageFor(err: unknown, fallback: string): string {
 }
 
 export function AccountPage() {
-  const { linkAccount, unlinkAccount } = useAuth();
+  const { linkAccount, unlinkAccount, redeemLinkCode } = useAuth();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState<Provider | null>(null);
+  const [code, setCode] = useState('');
+  const [redeeming, setRedeeming] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['auth', 'links'],
@@ -59,6 +73,25 @@ export function AccountPage() {
       });
     } finally {
       setBusy(null);
+    }
+  };
+
+  const redeem = async () => {
+    const trimmed = code.trim();
+    if (!trimmed) return;
+    setRedeeming(true);
+    try {
+      const updated = await redeemLinkCode(trimmed);
+      queryClient.setQueryData<LinkedAccounts>(['auth', 'links'], updated);
+      setCode('');
+      notifications.show({ message: 'Discord linked', color: 'green' });
+    } catch (err) {
+      notifications.show({
+        message: messageFor(err, 'Could not redeem that code. Try again.'),
+        color: 'red',
+      });
+    } finally {
+      setRedeeming(false);
     }
   };
 
@@ -130,6 +163,40 @@ export function AccountPage() {
               </Card>
             );
           })}
+
+          {!data.discord.linked && (
+            <Card withBorder radius="md" p="md">
+              <Stack gap="xs">
+                <Text fw={600}>Have a code from the bot?</Text>
+                <Text size="xs" c="dimmed">
+                  Run <Text span fw={600}>/link</Text> in the Discord server to get a
+                  one-time code, then enter it here to connect Discord without signing
+                  in again.
+                </Text>
+                <Group wrap="nowrap" align="flex-end" gap="sm">
+                  <TextInput
+                    aria-label="Discord link code"
+                    placeholder="e.g. AB12CD34"
+                    value={code}
+                    onChange={(e) => setCode(e.currentTarget.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') redeem();
+                    }}
+                    disabled={redeeming}
+                    style={{ flex: 1 }}
+                  />
+                  <Button
+                    color="indigo"
+                    onClick={redeem}
+                    loading={redeeming}
+                    disabled={!code.trim()}
+                  >
+                    Link
+                  </Button>
+                </Group>
+              </Stack>
+            </Card>
+          )}
         </Stack>
       )}
     </Stack>

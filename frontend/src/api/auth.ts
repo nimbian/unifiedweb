@@ -26,6 +26,12 @@ export const authApi = {
     return data;
   },
 
+  // Link Discord via a one-time code from the bot's /link (no OAuth roundtrip).
+  redeemLinkCode: async (code: string): Promise<LinkedAccounts> => {
+    const { data } = await apiClient.post<LinkedAccounts>('/auth/link/redeem', { code });
+    return data;
+  },
+
   // The signed-in user's connected providers.
   links: async (): Promise<LinkedAccounts> => {
     const { data } = await apiClient.get<LinkedAccounts>('/auth/links');

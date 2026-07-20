@@ -31,6 +31,8 @@ export interface AuthContextValue {
   linkAccount: (provider: Provider) => Promise<void>;
   // Disconnect a linked provider.
   unlinkAccount: (provider: Provider) => Promise<LinkedAccounts>;
+  // Link Discord via a one-time code from the bot's /link (no OAuth redirect).
+  redeemLinkCode: (code: string) => Promise<LinkedAccounts>;
   // Finish a redirect flow (login or link) using the ?code & ?state from the URL.
   completeOAuth: (code: string, urlState: string | null) => Promise<OAuthResult>;
   logout: () => Promise<void>;
@@ -123,6 +125,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const unlinkAccount = useCallback((provider: Provider) => authApi.unlinkProvider(provider), []);
 
+  const redeemLinkCode = useCallback(
+    async (code: string): Promise<LinkedAccounts> => {
+      const links = await authApi.redeemLinkCode(code);
+      // The current access token predates the link and carries no did; mint a
+      // fresh one so `did` (and Satchemon access) reflects the new Discord link
+      // right away instead of only after the next silent refresh.
+      const token = await authApi.refresh();
+      setAccessToken(token.access_token);
+      await loadProfile();
+      return links;
+    },
+    [loadProfile],
+  );
+
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -140,10 +156,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       linkAccount,
       unlinkAccount,
+      redeemLinkCode,
       completeOAuth,
       logout,
     }),
-    [user, isLoading, login, linkAccount, unlinkAccount, completeOAuth, logout],
+    [user, isLoading, login, linkAccount, unlinkAccount, redeemLinkCode, completeOAuth, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
