@@ -87,11 +87,13 @@ tables (`env.py`). Stamp the baseline, then apply the additive Phase-1 migration
 
 ```bash
 .venv/bin/alembic stamp 0003_linked_accounts   # if not already at 0003
-.venv/bin/alembic upgrade head                 # applies 0004 (users.created_at/created_via)
+.venv/bin/alembic upgrade head                 # applies 0004 + 0005 (see below)
 ```
 
-`0004` only adds two nullable, web-owned columns to `users`; it never touches
-bot-owned tables. **Test on a DB copy first** (PLAN §10, Phase 1 risk note).
+`0004` only adds two nullable, web-owned columns to `users`; `0005` creates the
+new web-owned `link_codes` table backing the bot's `/link` command (Phase 4).
+Neither touches bot-owned tables. **Test on a DB copy first** (PLAN §10, Phase 1
+risk note).
 
 ### Service
 
@@ -135,6 +137,10 @@ sudo nginx -t && sudo systemctl enable --now nginx && sudo systemctl reload ngin
 
 Open the firewall: `sudo firewall-cmd --permanent --add-service=http && sudo firewall-cmd --reload`
 
+Both proxy configs also carry the **Phase 5** old-URL redirects (see §6): the old
+newweb root paths (`/search`, `/me`, `/user/:did`, `/dnd/*`, …) 301 to their new
+`/satchemon/*` homes, so existing bookmarks and links survive the cutover.
+
 ## 4. Satchemon Discord bot (Phase 3)
 
 The bot is a standalone long-running process (a Discord gateway client) — no
@@ -163,8 +169,12 @@ relies on already exists. Verify the fork before enabling the service:
 
 ```bash
 .venv/bin/pip install pytest
-.venv/bin/python -m pytest -q      # 4 passing (tests/test_createuser.py)
+.venv/bin/python -m pytest -q      # 8 passing (test_createuser + test_linkcode)
 ```
+
+The bot's `/link` command (Phase 4) writes the web-owned `link_codes` table
+(created by migration `0005`, §1) — the only portal-read table the bot touches;
+the user redeems the code on `/account`. No bot-owned schema changes.
 
 Service:
 
@@ -183,6 +193,51 @@ bot may hold the Discord gateway connection for a given token).
 Each of the three OAuth apps (Discord, Google, Twitch) needs
 `FRONTEND_ORIGIN/auth/callback` registered as a redirect URI. Set
 `FRONTEND_ORIGIN` to the public hostname and, behind TLS, `COOKIE_SECURE=true`.
+
+## 6. Decommission the old sites (Phase 5)
+
+Do this only once the unified portal is validated in prod. Each fork replaces its
+predecessor; the old folders are **archived, not deleted** (PLAN §9) until the
+whole cutover is confirmed. Order matters — turn on the redirects before stopping
+the old backends so no link 404s in the gap.
+
+1. **Old URLs → new (already in the configs).** The reverse proxy 301s the old
+   newweb root paths to `/satchemon/*`. Verify after reload:
+
+   ```bash
+   curl -sI http://<host>/search      | grep -i location   # -> /satchemon/search
+   curl -sI http://<host>/user/123    | grep -i location   # -> /satchemon/user/123
+   curl -sI http://<host>/dnd/worldboss | grep -i location # -> /satchemon/progress/worldboss
+   ```
+
+   For the standalone **dndbattle** site (a separate origin — see the commented
+   `server`/`VirtualHost` block at the bottom of the proxy config), fill in its
+   real old hostname (PLAN §11 #5), enable the block, and confirm
+   `/roster`, `/shop`, `/characters/:id` redirect under `/dndbattle/*`.
+
+2. **Retire the old backends/frontends.** Stop and disable the old newweb and
+   standalone-dndbattle services (whatever their unit names were), leaving the
+   unified `moorednd-api`, the arena upstream, and the SPA serving everything.
+   The **grace window** matters: keep `JWT_LEGACY_SECRET` set (§1) until the
+   7-day refresh window drains, then remove it so old HS256 tokens stop being
+   accepted.
+
+3. **Cut over the bot.** Only one process may hold the Discord gateway per token,
+   so stop the old bot before enabling `moorednd-bot` (§4) — already covered
+   there; just confirm the old one is down.
+
+4. **Archive, don't delete.** Once traffic to the old origins is zero for a full
+   refresh window and the leaderboards/collections look right, archive the old
+   repos (`bot/`, `dndbattle/`, `newweb/` — `dndadventure/` is unchanged and its
+   DB is still read read-only by the portal). Keep the archives until you are
+   confident no rollback is needed.
+
+The merge tool (PLAN §7) is intentionally **not** built yet; account-link 409s
+are logged as `ACCOUNT_LINK_CONFLICT` so real demand can be counted first:
+
+```bash
+journalctl -u moorednd-api | grep -c ACCOUNT_LINK_CONFLICT
+```
 
 ## Health & logs
 
