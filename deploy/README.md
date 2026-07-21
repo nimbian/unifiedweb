@@ -191,8 +191,15 @@ bot may hold the Discord gateway connection for a given token).
 ## 5. OAuth redirect URIs
 
 Each of the three OAuth apps (Discord, Google, Twitch) needs
-`FRONTEND_ORIGIN/auth/callback` registered as a redirect URI. Set
-`FRONTEND_ORIGIN` to the public hostname and, behind TLS, `COOKIE_SECURE=true`.
+`FRONTEND_ORIGIN/auth/callback` registered as a redirect URI. The production
+origin is **`https://www.moorednd.com`** (PLAN §11 #5), so:
+
+```
+FRONTEND_ORIGIN=https://www.moorednd.com
+COOKIE_SECURE=true
+```
+
+and register `https://www.moorednd.com/auth/callback` on all three OAuth apps.
 
 ## 6. Decommission the old sites (Phase 5)
 
