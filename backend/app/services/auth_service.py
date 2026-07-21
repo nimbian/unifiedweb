@@ -246,6 +246,21 @@ class AuthService:
         return response, refresh
 
     # ── Link / unlink (keyed on rwid) ────────────────────────────────────────
+    def _log_conflict(self, provider: Provider, current_rwid: int, other_rwid: int) -> None:
+        """Record a 409 link conflict so real demand for an account-merge tool can
+        be measured before one is built (PLAN §7). Each line is a genuine duplicate:
+        the signed-in account ``current_rwid`` tried to claim a ``provider`` identity
+        already owned by ``other_rwid``. The stable ``ACCOUNT_LINK_CONFLICT`` marker
+        makes these greppable/countable in the logs (journald under the systemd
+        deploy) — e.g. ``journalctl -u moorednd-api | grep -c ACCOUNT_LINK_CONFLICT``.
+        """
+        logger.warning(
+            "ACCOUNT_LINK_CONFLICT provider=%s current_rwid=%s other_rwid=%s",
+            provider,
+            current_rwid,
+            other_rwid,
+        )
+
     def _conflict_message(self, provider: Provider) -> str:
         if provider == "discord":
             return (
@@ -268,6 +283,7 @@ class AuthService:
         identity = await self._fetch_identity(provider, code)
         existing = self._resolve_user(identity)
         if existing is not None and existing.rwid != me.rwid:
+            self._log_conflict(provider, me.rwid, existing.rwid)
             raise AuthConflict(self._conflict_message(provider))
 
         if provider == "discord":
@@ -311,6 +327,7 @@ class AuthService:
 
         existing = self.users.get_by_did(link.did)
         if existing is not None and existing.rwid != me.rwid:
+            self._log_conflict("discord", me.rwid, existing.rwid)
             raise AuthConflict(self._conflict_message("discord"))
 
         self.users.set_discord_link(me.rwid, link.did)

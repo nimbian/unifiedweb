@@ -195,6 +195,30 @@ def test_link_conflict_when_already_linked_elsewhere(client, db, auth_headers, m
     assert resp.status_code == 409
 
 
+def test_link_conflict_is_logged_for_merge_measurement(client, db, auth_headers, monkeypatch, caplog):
+    """Every 409 emits a stable ACCOUNT_LINK_CONFLICT line with the rwid pair, so
+    demand for the merge tool can be counted before it is built (PLAN §7)."""
+    import logging
+
+    db.add(User(rwid=2, name="Bob", did=222, gp=0))
+    db.commit()
+
+    # Bob owns a Twitch account…
+    _patch_identity(monkeypatch, ProviderIdentity("twitch", "t-log", "logged_tv"))
+    client.post("/api/auth/twitch/link", json={"code": "x"}, headers=_v2_headers(2, did="222"))
+
+    # …Alice (rwid=1) tries to claim the same one -> 409, logged.
+    _patch_identity(monkeypatch, ProviderIdentity("twitch", "t-log", "logged_tv"))
+    with caplog.at_level(logging.WARNING):
+        resp = client.post("/api/auth/twitch/link", json={"code": "x"}, headers=auth_headers)
+    assert resp.status_code == 409
+
+    line = next(m for m in caplog.messages if "ACCOUNT_LINK_CONFLICT" in m)
+    assert "provider=twitch" in line
+    assert "current_rwid=1" in line
+    assert "other_rwid=2" in line
+
+
 def test_discord_link_conflict_uses_guidance_message(client, monkeypatch):
     # A Twitch-first account tries to link Discord 111, which the seeded Alice owns.
     _patch_identity(monkeypatch, ProviderIdentity("twitch", "t-conf", "Conf"))
