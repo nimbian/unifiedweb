@@ -78,7 +78,9 @@ JWT_LEGACY_SECRET=<the previous newweb JWT_SECRET>
 ```
 
 Also set `DATABASE_URL`, the three `*_CLIENT_ID/SECRET` pairs, `FRONTEND_ORIGIN`,
-and `COOKIE_SECURE=true` behind TLS.
+and `COOKIE_SECURE=true` behind TLS. To grant admin tools (the MMM donor import
+at `/mmm/admin`), set `ADMIN_DISCORD_IDS` to a comma-separated list of the admins'
+Discord ids — a signed-in user is an admin iff their linked `did` is listed.
 
 ### Database (existing — do NOT mutate)
 
@@ -97,7 +99,9 @@ supporter wall). None touch bot-owned tables. **Test on a DB copy first** (PLAN
 §10, Phase 1 risk note).
 
 Load the MMM supporter list from a CSV (header
-`name,initiate,apprentice,knight,master,ascendant,luminary,arbiter`) any time:
+`name,initiate,apprentice,knight,master,ascendant,luminary,arbiter`) any time —
+from the shell, or by uploading the same file at `/mmm/admin` as an admin
+(`ADMIN_DISCORD_IDS`, above):
 
 ```bash
 .venv/bin/python -m scripts.import_mmm_donors path/to/donors.csv   # upserts by name

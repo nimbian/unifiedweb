@@ -19,3 +19,11 @@ class DonorSummary(BaseModel):
     total_badges: int
     rank: int = Field(..., description="Competition rank; donors tied on points share a rank.")
     badges: dict[str, int] = Field(..., description="Per-tier badge counts keyed by tier id.")
+
+
+class DonorImportResult(BaseModel):
+    """Outcome of an admin CSV import."""
+
+    inserted: int
+    updated: int
+    total: int

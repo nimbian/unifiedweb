@@ -14,6 +14,9 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 os.environ.setdefault("ROLECALL_API_KEY", "test-rolecall-key")
+# The seeded user Alice (did=111) is a portal admin, so admin-gated routes
+# (e.g. the MMM donor import) can be exercised.
+os.environ.setdefault("ADMIN_DISCORD_IDS", "111")
 # Point the app engine at SQLite so importing it does not require the Postgres
 # driver; every request is routed to the in-memory test session via override.
 os.environ.setdefault("DATABASE_URL", "sqlite://")

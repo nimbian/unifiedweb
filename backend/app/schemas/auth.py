@@ -45,6 +45,7 @@ class AuthenticatedUser(BaseModel):
     rwid: int | None = Field(default=None, description="Canonical users.rwid (v2 token subject).")
     did: str | None = Field(default=None, description="Discord user id, if the account has one.")
     name: str | None = None
+    is_admin: bool = Field(default=False, description="Whether this user may use admin tools.")
 
 
 class ProviderLink(BaseModel):

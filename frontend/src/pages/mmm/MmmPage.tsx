@@ -20,8 +20,9 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import { IconSearch } from '@tabler/icons-react';
+import { IconSearch, IconSettings } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { useMmmBadges, useMmmDonors } from '@/hooks/useMmm';
 import type { MmmBadgeTier } from '@/types';
 import { badgeIcon, formatPoints, ordinal, tierColor } from './mmmShared';
@@ -172,16 +173,27 @@ function Leaderboard() {
 
 export function MmmPage() {
   const { data: tiers, isLoading, isError } = useMmmBadges();
+  const { user } = useAuth();
 
   return (
     <Stack gap="xl">
-      <Stack gap={4}>
-        <Title order={1}>Midweek Monster Mash — Supporters</Title>
-        <Text c="dimmed">
-          Every badge is earned by supporting the stream. Climb the tiers to rack up points and
-          claim your place on the wall.
-        </Text>
-      </Stack>
+      <Group justify="space-between" align="flex-start" wrap="nowrap">
+        <Stack gap={4}>
+          <Title order={1}>Midweek Monster Mash — Supporters</Title>
+          <Text c="dimmed">
+            Every badge is earned by supporting the stream. Climb the tiers to rack up points and
+            claim your place on the wall.
+          </Text>
+        </Stack>
+        {user?.is_admin && (
+          <Anchor component={Link} to="/mmm/admin" size="sm" fw={600} style={{ whiteSpace: 'nowrap' }}>
+            <Group gap={4} wrap="nowrap">
+              <IconSettings size={16} />
+              Manage
+            </Group>
+          </Anchor>
+        )}
+      </Group>
 
       <Stack gap="sm">
         <Title order={3}>Badge tiers</Title>

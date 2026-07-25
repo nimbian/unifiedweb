@@ -65,3 +65,63 @@ def test_unknown_donor_404(client):
 
 def test_empty_leaderboard(client):
     assert client.get("/api/mmm/donors").json() == []
+
+
+# ── admin CSV import ──────────────────────────────────────────────────────────
+_HEADER = "name,initiate,apprentice,knight,master,ascendant,luminary,arbiter"
+
+
+def _csv_file(text: str):
+    return {"file": ("donors.csv", text.encode("utf-8"), "text/csv")}
+
+
+def _non_admin_headers():
+    """A v2 token for Bob (did 222), who is NOT in ADMIN_DISCORD_IDS."""
+    from app.core.security import create_access_token
+
+    token = create_access_token("2", extra_claims={"ver": 2, "did": "222", "name": "Bob"})
+    return {"Authorization": f"Bearer {token}"}
+
+
+def test_me_exposes_is_admin(client, auth_headers):
+    # Alice (did 111) is configured as an admin in conftest…
+    assert client.get("/api/auth/me", headers=auth_headers).json()["is_admin"] is True
+    # …Bob (did 222) is not.
+    assert client.get("/api/auth/me", headers=_non_admin_headers()).json()["is_admin"] is False
+
+
+def test_import_requires_admin(client):
+    csv = f"{_HEADER}\nX,0,0,1,0,0,0,0\n"
+    # Unauthenticated -> 401.
+    assert client.post("/api/mmm/admin/donors", files=_csv_file(csv)).status_code == 401
+    # Authenticated but not an admin -> 403.
+    resp = client.post("/api/mmm/admin/donors", files=_csv_file(csv), headers=_non_admin_headers())
+    assert resp.status_code == 403
+    assert "admin" in resp.json()["detail"].lower()
+
+
+def test_admin_import_upserts(client, db, auth_headers):
+    from sqlalchemy import select
+
+    from app.models import MmmDonor
+
+    _add(db, "Alice", knight=1)  # existing donor to be updated
+    db.commit()
+
+    csv = f"{_HEADER}\nAlice,0,0,2,0,0,0,0\nBob,1,0,0,0,0,0,0\n"
+    resp = client.post("/api/mmm/admin/donors", files=_csv_file(csv), headers=auth_headers)
+    assert resp.status_code == 200
+    assert resp.json() == {"inserted": 1, "updated": 1, "total": 2}
+
+    db.flush()
+    rows = {d.name: d for d in db.execute(select(MmmDonor)).scalars().all()}
+    assert rows["Alice"].knight == 2  # updated in place
+    assert rows["Bob"].initiate == 1  # inserted
+
+
+def test_admin_import_rejects_csv_without_name(client, auth_headers):
+    resp = client.post(
+        "/api/mmm/admin/donors", files=_csv_file("foo,bar\n1,2\n"), headers=auth_headers
+    )
+    assert resp.status_code == 400
+    assert "name" in resp.json()["detail"].lower()

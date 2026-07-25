@@ -79,6 +79,23 @@ def require_discord_did(user: CurrentUser) -> int:
 CurrentDid = Annotated[int, Depends(require_discord_did)]
 
 
+def require_admin(user: CurrentUser) -> AuthenticatedUser:
+    """Gate a route behind portal-admin access (the ``admin_discord_ids`` allowlist).
+
+    ``is_admin`` is computed server-side from the caller's ``did`` on every request
+    (it is not a forgeable token claim), so trusting it here is safe.
+    """
+    if not user.is_admin:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            detail="Admin access required.",
+        )
+    return user
+
+
+CurrentAdmin = Annotated[AuthenticatedUser, Depends(require_admin)]
+
+
 def require_self(rwid: int, user: CurrentUser) -> AuthenticatedUser:
     """Authorize an action on ``rwid`` only if it belongs to the caller."""
     if user.rwid != rwid:

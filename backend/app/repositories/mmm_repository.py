@@ -16,3 +16,11 @@ class MmmRepository:
         """Every donor row. Points/totals/ranks are computed in the service (the
         ranking needs the whole set), mirroring the original static site."""
         return self.db.execute(select(MmmDonor)).scalars().all()
+
+    def get_by_name(self, name: str) -> MmmDonor | None:
+        return self.db.execute(
+            select(MmmDonor).where(MmmDonor.name == name)
+        ).scalar_one_or_none()
+
+    def add(self, donor: MmmDonor) -> None:
+        self.db.add(donor)

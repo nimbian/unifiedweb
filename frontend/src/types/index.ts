@@ -176,6 +176,7 @@ export interface AuthenticatedUser {
   did: string;
   name: string | null;
   rwid: number | null;
+  is_admin?: boolean;
 }
 
 // Sign-in providers. Discord is the primary account; Google (the "YouTube"
@@ -236,6 +237,12 @@ export interface MmmDonor {
   total_badges: number;
   rank: number;
   badges: Record<string, number>; // tier key -> count
+}
+
+export interface MmmImportResult {
+  inserted: number;
+  updated: number;
+  total: number;
 }
 
 export interface BuyResult {

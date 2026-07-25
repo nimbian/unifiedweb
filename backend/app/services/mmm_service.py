@@ -9,13 +9,16 @@ authoritative copy that used to live in ``app.js``; the front end maps each
 tier ``key`` to its emblem art.
 """
 
+import csv
+import io
 from dataclasses import dataclass
 
 from fastapi import HTTPException, status
 
 from app.models import MmmDonor
+from app.models.mmm_donor import TIER_KEYS
 from app.repositories.mmm_repository import MmmRepository
-from app.schemas.mmm import BadgeTier, DonorSummary
+from app.schemas.mmm import BadgeTier, DonorImportResult, DonorSummary
 
 
 @dataclass(frozen=True)
@@ -36,6 +39,14 @@ BADGES: tuple[_Tier, ...] = (
     _Tier("luminary", "Luminary of the Prismatic Order", 175),
     _Tier("arbiter", "Arbiter of the Cosmic Balance", 275),
 )
+
+
+def _to_count(value: str | None) -> int:
+    """Parse a CSV cell into a non-negative badge count (blank/garbage -> 0)."""
+    try:
+        return max(0, int(value or "0"))
+    except (TypeError, ValueError):
+        return 0
 
 
 class MmmService:
@@ -62,6 +73,36 @@ class MmmService:
             if d.name.lower() == target:
                 return d
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"No donor named {name!r} is listed.")
+
+    # ── admin: CSV import (upsert by name) ───────────────────────────────────
+    def import_csv_text(self, text: str) -> DonorImportResult:
+        """Upsert donors from CSV text with the original site's header
+        (``name,initiate,…,arbiter``). Existing donors (matched by name) are
+        updated, new ones inserted; blank names are skipped, missing/blank tier
+        columns default to 0, unknown columns are ignored. Does not commit — the
+        request transaction (or the caller) does.
+        """
+        reader = csv.DictReader(io.StringIO(text))
+        headers = {(h or "").strip().lower() for h in (reader.fieldnames or [])}
+        if "name" not in headers:
+            raise ValueError("CSV must have a 'name' column.")
+
+        inserted = updated = 0
+        for raw in reader:
+            row = {(k or "").strip().lower(): (v or "").strip() for k, v in raw.items()}
+            name = row.get("name", "")
+            if not name:
+                continue
+            counts = {key: _to_count(row.get(key)) for key in TIER_KEYS}
+            existing = self.repo.get_by_name(name)
+            if existing is None:
+                self.repo.add(MmmDonor(name=name, **counts))
+                inserted += 1
+            else:
+                for key, value in counts.items():
+                    setattr(existing, key, value)
+                updated += 1
+        return DonorImportResult(inserted=inserted, updated=updated, total=inserted + updated)
 
     # ── internals ────────────────────────────────────────────────────────────
     @staticmethod

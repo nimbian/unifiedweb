@@ -3,6 +3,7 @@ import { MainLayout } from '@/layouts/MainLayout';
 import { DndBattleLayout } from '@/layouts/DndBattleLayout';
 import { MmmLayout } from '@/layouts/MmmLayout';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { AdminRoute } from '@/components/AdminRoute';
 import { HomePage } from '@/pages/HomePage';
 import { UsersPage } from '@/pages/UsersPage';
 import { ArenaPage } from '@/pages/dndbattle/ArenaPage';
@@ -23,6 +24,7 @@ import { DndAchievementsPage } from '@/pages/dnd/DndAchievementsPage';
 import { SlideshowPage } from '@/pages/SlideshowPage';
 import { MmmPage } from '@/pages/mmm/MmmPage';
 import { MmmDonorPage } from '@/pages/mmm/MmmDonorPage';
+import { MmmAdminPage } from '@/pages/mmm/MmmAdminPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { AuthCallbackPage } from '@/pages/AuthCallbackPage';
 import { AccountPage } from '@/pages/AccountPage';
@@ -51,6 +53,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 //   /dndbattle/character/:id   -> CharacterSheetPage (public read, owner actions)
 //   /mmm                       -> MmmPage          (Midweek Monster Mash donor wall, public)
 //   /mmm/donor/:name           -> MmmDonorPage     (a supporter's earned badges)
+//   /mmm/admin                 -> MmmAdminPage     (CSV import; admin-only, AdminRoute)
 export function AppRoutes() {
   return (
     <Routes>
@@ -116,10 +119,19 @@ export function AppRoutes() {
         <Route path="/dndbattle/character/:id" element={<CharacterSheetPage />} />
       </Route>
 
-      {/* Midweek Monster Mash — donor badge wall (public, community-wide). */}
+      {/* Midweek Monster Mash — donor badge wall (public), plus the admin-only
+          CSV import gated by AdminRoute (backend re-checks the allowlist). */}
       <Route element={<MmmLayout />}>
         <Route path="/mmm" element={<MmmPage />} />
         <Route path="/mmm/donor/:name" element={<MmmDonorPage />} />
+        <Route
+          path="/mmm/admin"
+          element={
+            <AdminRoute>
+              <MmmAdminPage />
+            </AdminRoute>
+          }
+        />
       </Route>
     </Routes>
   );

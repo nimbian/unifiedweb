@@ -402,14 +402,18 @@ class AuthService:
         payload = decode_token(token, expected_type="access")
         if payload.get("ver") == TOKEN_VERSION:
             # v2: subject is the canonical rwid; did rides as an optional claim.
+            did = payload.get("did")
             return AuthenticatedUser(
                 rwid=int(payload["sub"]),
-                did=payload.get("did"),
+                did=did,
                 name=payload.get("name"),
+                is_admin=settings.is_admin(did),
             )
         # v1 grace: subject is the Discord id; rwid (if present) rides as a claim.
+        did = str(payload["sub"])
         return AuthenticatedUser(
             rwid=payload.get("rwid"),
-            did=str(payload["sub"]),
+            did=did,
             name=payload.get("name"),
+            is_admin=settings.is_admin(did),
         )

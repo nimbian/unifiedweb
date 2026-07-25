@@ -102,6 +102,33 @@ class Settings(BaseSettings):
     # Shared API key for the rolecall/check-in endpoints (not the app JWT).
     rolecall_api_key: str = ""
 
+    # Portal admins — a comma-separated allowlist of Discord ids (matching the
+    # bot's own admin ids) permitted to use admin tools (e.g. the MMM donor
+    # import). A signed-in user is an admin iff their linked ``did`` is listed.
+    admin_discord_ids: str = ""
+
+    @property
+    def admin_dids(self) -> frozenset[int]:
+        """The admin Discord ids, parsed from ``admin_discord_ids``."""
+        out: set[int] = set()
+        for part in self.admin_discord_ids.split(","):
+            part = part.strip()
+            if part:
+                try:
+                    out.add(int(part))
+                except ValueError:
+                    pass
+        return frozenset(out)
+
+    def is_admin(self, did: int | str | None) -> bool:
+        """Whether a Discord id belongs to a portal admin."""
+        if did is None:
+            return False
+        try:
+            return int(did) in self.admin_dids
+        except (TypeError, ValueError):
+            return False
+
     @model_validator(mode="after")
     def _derive_redirect_uris(self) -> "Settings":
         """Default any blank OAuth redirect URI to ``{frontend_origin}/auth/callback``.
