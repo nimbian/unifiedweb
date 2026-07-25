@@ -14,12 +14,14 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.repositories.collection_repository import CollectionRepository
 from app.repositories.leaderboard_repository import LeaderboardRepository
+from app.repositories.mmm_repository import MmmRepository
 from app.repositories.set_repository import SetRepository
 from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthService
 from app.services.collection_service import CollectionService
 from app.services.drive_service import DriveService
 from app.services.leaderboard_service import LeaderboardService
+from app.services.mmm_service import MmmService
 from app.services.progress_service import ProgressService
 from app.services.set_service import SetService
 from app.services.user_service import UserService
@@ -42,6 +44,10 @@ def get_set_repo(db: DbSession) -> SetRepository:
 
 def get_leaderboard_repo(db: DbSession) -> LeaderboardRepository:
     return LeaderboardRepository(db)
+
+
+def get_mmm_repo(db: DbSession) -> MmmRepository:
+    return MmmRepository(db)
 
 
 # ── Services ─────────────────────────────────────────────────────────────────
@@ -84,6 +90,12 @@ def get_leaderboard_service(
     return LeaderboardService(repo)
 
 
+def get_mmm_service(
+    repo: Annotated[MmmRepository, Depends(get_mmm_repo)],
+) -> MmmService:
+    return MmmService(repo)
+
+
 def get_drive_service() -> DriveService:
     return DriveService()
 
@@ -93,6 +105,7 @@ UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 CollectionServiceDep = Annotated[CollectionService, Depends(get_collection_service)]
 SetServiceDep = Annotated[SetService, Depends(get_set_service)]
 LeaderboardServiceDep = Annotated[LeaderboardService, Depends(get_leaderboard_service)]
+MmmServiceDep = Annotated[MmmService, Depends(get_mmm_service)]
 ProgressServiceDep = Annotated[ProgressService, Depends(get_progress_service)]
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 DriveServiceDep = Annotated[DriveService, Depends(get_drive_service)]

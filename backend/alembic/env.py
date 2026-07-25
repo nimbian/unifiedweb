@@ -9,9 +9,9 @@ Configured for an existing, populated database:
 
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from alembic import context
 from app.core.config import settings
 from app.models import Base
 
@@ -35,6 +35,7 @@ MANAGED_TABLES = {
     # Created and owned by the web app (unlike the rest, which pre-exist).
     "queue",
     "link_codes",
+    "mmm_donors",
 }
 
 

@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { MainLayout } from '@/layouts/MainLayout';
 import { DndBattleLayout } from '@/layouts/DndBattleLayout';
+import { MmmLayout } from '@/layouts/MmmLayout';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { HomePage } from '@/pages/HomePage';
 import { UsersPage } from '@/pages/UsersPage';
@@ -20,6 +21,8 @@ import { DndLeaderboardPage } from '@/pages/dnd/DndLeaderboardPage';
 import { WorldBossPage } from '@/pages/dnd/WorldBossPage';
 import { DndAchievementsPage } from '@/pages/dnd/DndAchievementsPage';
 import { SlideshowPage } from '@/pages/SlideshowPage';
+import { MmmPage } from '@/pages/mmm/MmmPage';
+import { MmmDonorPage } from '@/pages/mmm/MmmDonorPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { AuthCallbackPage } from '@/pages/AuthCallbackPage';
 import { AccountPage } from '@/pages/AccountPage';
@@ -46,6 +49,8 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 //   /dndbattle/leaderboard|hof|shop                (public reads + shop catalog)
 //   /dndbattle/roster          -> RosterPage       (authed; Twitch-link gated)
 //   /dndbattle/character/:id   -> CharacterSheetPage (public read, owner actions)
+//   /mmm                       -> MmmPage          (Midweek Monster Mash donor wall, public)
+//   /mmm/donor/:name           -> MmmDonorPage     (a supporter's earned badges)
 export function AppRoutes() {
   return (
     <Routes>
@@ -109,6 +114,12 @@ export function AppRoutes() {
         <Route path="/dndbattle/shop" element={<ShopPage />} />
         <Route path="/dndbattle/roster" element={<RosterPage />} />
         <Route path="/dndbattle/character/:id" element={<CharacterSheetPage />} />
+      </Route>
+
+      {/* Midweek Monster Mash — donor badge wall (public, community-wide). */}
+      <Route element={<MmmLayout />}>
+        <Route path="/mmm" element={<MmmPage />} />
+        <Route path="/mmm/donor/:name" element={<MmmDonorPage />} />
       </Route>
     </Routes>
   );

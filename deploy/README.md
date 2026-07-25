@@ -91,9 +91,17 @@ tables (`env.py`). Stamp the baseline, then apply the additive Phase-1 migration
 ```
 
 `0004` only adds two nullable, web-owned columns to `users`; `0005` creates the
-new web-owned `link_codes` table backing the bot's `/link` command (Phase 4).
-Neither touches bot-owned tables. **Test on a DB copy first** (PLAN §10, Phase 1
-risk note).
+new web-owned `link_codes` table backing the bot's `/link` command (Phase 4);
+`0006` creates the web-owned `mmm_donors` table (the Midweek Monster Mash
+supporter wall). None touch bot-owned tables. **Test on a DB copy first** (PLAN
+§10, Phase 1 risk note).
+
+Load the MMM supporter list from a CSV (header
+`name,initiate,apprentice,knight,master,ascendant,luminary,arbiter`) any time:
+
+```bash
+.venv/bin/python -m scripts.import_mmm_donors path/to/donors.csv   # upserts by name
+```
 
 ### Service
 

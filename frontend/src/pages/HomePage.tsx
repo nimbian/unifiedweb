@@ -8,10 +8,27 @@
 // (The external-link glyph + VITE_*_URL fallback remain in case a tile is pointed
 // back out at a standalone site during a transition.)
 
-import { Anchor, Box, Button, Card, Center, Group, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import {
+  Anchor,
+  Badge,
+  Box,
+  Button,
+  Card,
+  Center,
+  Group,
+  Image,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+  Tooltip,
+} from '@mantine/core';
 import { IconCards, IconExternalLink, IconSwords } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useMmmBadges, useMmmDonors } from '@/hooks/useMmm';
+import { badgeIcon, formatPoints, ordinal } from '@/pages/mmm/mmmShared';
 
 interface Tile {
   title: string;
@@ -83,6 +100,72 @@ function GameTile({ tile }: { tile: Tile }) {
   );
 }
 
+// Medal colours for the top-3 supporters (gold/silver/bronze).
+const RANK_COLORS = ['yellow', 'gray', 'orange'];
+
+// Compact Midweek Monster Mash supporter teaser: the badge tiers + the top few
+// supporters, linking through to the full /mmm wall. Renders nothing until the
+// badge catalog is ready so the landing page stays clean.
+function HomeSupporters() {
+  const { data: badges } = useMmmBadges();
+  const { data: donors } = useMmmDonors();
+  if (!badges || badges.length === 0) return null;
+  const top = (donors ?? []).slice(0, 5);
+
+  return (
+    <Card withBorder radius="lg" p="lg" shadow="sm" w="100%">
+      <Group justify="space-between" wrap="nowrap" mb="sm">
+        <Box>
+          <Title order={3}>Midweek Monster Mash</Title>
+          <Text c="dimmed" size="sm">
+            Supporter badge wall
+          </Text>
+        </Box>
+        <Anchor component={Link} to="/mmm" fw={600} size="sm">
+          View all →
+        </Anchor>
+      </Group>
+
+      <Group gap="xs" justify="center" mb={top.length ? 'md' : 0} wrap="wrap">
+        {badges.map((tier) => (
+          <Tooltip key={tier.key} label={`${tier.title} · ${formatPoints(tier.points)} pts`} withArrow>
+            <Image src={badgeIcon(tier.key)} alt={tier.title} w={40} h={40} loading="lazy" />
+          </Tooltip>
+        ))}
+      </Group>
+
+      {top.length > 0 ? (
+        <Stack gap={6}>
+          {top.map((d) => (
+            <Group key={d.name} justify="space-between" wrap="nowrap">
+              <Group gap="xs" wrap="nowrap">
+                <Badge
+                  color={RANK_COLORS[d.rank - 1] ?? 'blue'}
+                  variant="light"
+                  w={44}
+                  style={{ justifyContent: 'center' }}
+                >
+                  {ordinal(d.rank)}
+                </Badge>
+                <Anchor component={Link} to={`/mmm/donor/${encodeURIComponent(d.name)}`} size="sm">
+                  {d.name}
+                </Anchor>
+              </Group>
+              <Text size="sm" c="dimmed">
+                {formatPoints(d.points)} pts
+              </Text>
+            </Group>
+          ))}
+        </Stack>
+      ) : (
+        <Text c="dimmed" size="sm" ta="center">
+          Support the stream to claim your first badge.
+        </Text>
+      )}
+    </Card>
+  );
+}
+
 function HomeHeader() {
   const { isAuthenticated, user, logout } = useAuth();
   return (
@@ -136,6 +219,8 @@ export function HomePage() {
             <GameTile key={tile.title} tile={tile} />
           ))}
         </SimpleGrid>
+
+        <HomeSupporters />
 
         <Text c="dimmed" size="xs" ta="center">
           Trouble signing in? Play the Discord bot?{' '}

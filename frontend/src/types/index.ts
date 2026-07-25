@@ -223,6 +223,21 @@ export interface BoughtCard {
   cost: string;
 }
 
+// ── Midweek Monster Mash donor badges ──────────────────────────────────────
+export interface MmmBadgeTier {
+  key: string;
+  title: string;
+  points: number; // points awarded per badge of this tier
+}
+
+export interface MmmDonor {
+  name: string;
+  points: number;
+  total_badges: number;
+  rank: number;
+  badges: Record<string, number>; // tier key -> count
+}
+
 export interface BuyResult {
   bought: BoughtCard[];
   total_cost: string;

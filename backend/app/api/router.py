@@ -8,6 +8,7 @@ from app.api.routers import (
     collections,
     drive,
     leaderboard,
+    mmm,
     progress,
     rolecall,
     sets,
@@ -21,6 +22,7 @@ api_router.include_router(users.router)
 api_router.include_router(collections.router)
 api_router.include_router(sets.router)
 api_router.include_router(leaderboard.router)
+api_router.include_router(mmm.router)
 api_router.include_router(cards.router)
 api_router.include_router(rolecall.router)
 api_router.include_router(progress.router)
